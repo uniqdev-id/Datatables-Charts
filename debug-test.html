@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>DataTables Charts - Debug Test</title>
+
+        <!-- DataTables CSS -->
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"
+        />
+        <!-- DataTables Buttons CSS -->
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css"
+        />
+
+        <!-- Our Plugin's CSS -->
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="src/datatables.charts.css"
+        />
+
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                padding: 20px;
+            }
+            .debug-info {
+                background: #f0f0f0;
+                padding: 15px;
+                margin: 10px 0;
+                border-radius: 5px;
+            }
+            .console-logs {
+                background: #1e1e1e;
+                color: #00ff00;
+                padding: 10px;
+                border-radius: 5px;
+                font-family: monospace;
+                max-height: 300px;
+                overflow-y: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <h1>DataTables Charts - Debug Test</h1>
+
+        <div class="debug-info">
+            <h3>Expected Behavior:</h3>
+            <ol>
+                <li>Click "📊 Charts" button → dropdown should appear</li>
+                <li>
+                    Click a chart option → chart container should appear above
+                    the table
+                </li>
+                <li>A chart (bar/pie) should render using Chart.js</li>
+                <li>Console should show debugging logs</li>
+            </ol>
+        </div>
+
+        <div id="console-output" class="console-logs">
+            Console logs will appear here...
+        </div>
+
+        <table id="debugTable" class="display" style="width: 100%">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Office</th>
+                    <th>Salary</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>John Doe</td>
+                    <td>London</td>
+                    <td>$50,000</td>
+                </tr>
+                <tr>
+                    <td>Jane Smith</td>
+                    <td>New York</td>
+                    <td>$75,000</td>
+                </tr>
+                <tr>
+                    <td>Bob Johnson</td>
+                    <td>London</td>
+                    <td>$60,000</td>
+                </tr>
+                <tr>
+                    <td>Alice Wilson</td>
+                    <td>Tokyo</td>
+                    <td>$65,000</td>
+                </tr>
+                <tr>
+                    <td>Charlie Brown</td>
+                    <td>New York</td>
+                    <td>$80,000</td>
+                </tr>
+                <tr>
+                    <td>Eva Martinez</td>
+                    <td>London</td>
+                    <td>$70,000</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
+        <!-- DataTables JS -->
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <!-- DataTables Buttons JS -->
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <!-- Our Plugin's JS -->
+        <script src="src/datatables.charts.js"></script>
+
+        <script>
+            // Capture console.log for display
+            const consoleOutput = document.getElementById('console-output');
+            const originalLog = console.log;
+            const originalError = console.error;
+            const originalWarn = console.warn;
+
+            function addToConsole(message, type = 'log') {
+                const timestamp = new Date().toLocaleTimeString();
+                const colors = {
+                    log: '#00ff00',
+                    error: '#ff4444',
+                    warn: '#ffaa00',
+                };
+                const div = document.createElement('div');
+                div.innerHTML = `<span style="color: #666;">[${timestamp}]</span> <span style="color: ${colors[type]};">${message}</span>`;
+                consoleOutput.appendChild(div);
+                consoleOutput.scrollTop = consoleOutput.scrollHeight;
+            }
+
+            console.log = function (...args) {
+                originalLog.apply(console, args);
+                addToConsole(args.join(' '), 'log');
+            };
+
+            console.error = function (...args) {
+                originalError.apply(console, args);
+                addToConsole('ERROR: ' + args.join(' '), 'error');
+            };
+
+            console.warn = function (...args) {
+                originalWarn.apply(console, args);
+                addToConsole('WARN: ' + args.join(' '), 'warn');
+            };
+
+            // Check if Chart.js is loaded
+            console.log(
+                '📊 Chart.js version:',
+                typeof Chart !== 'undefined' ? Chart.version : 'NOT LOADED',
+            );
+            console.log('💾 jQuery version:', $.fn.jquery);
+            console.log('📋 DataTables version:', $.fn.dataTable.version);
+
+            $(document).ready(function () {
+                console.log('🚀 DOM Ready - Initializing DataTable...');
+
+                try {
+                    const table = $('#debugTable').DataTable({
+                        dom: 'Bfrtip',
+                        buttons: [
+                            'copy',
+                            {
+                                extend: 'charts',
+                                text: '📊 Charts',
+                                charts: [
+                                    {
+                                        type: 'bar',
+                                        title: 'Average Salary by Office',
+                                        data: {
+                                            labelColumn: 1, // Office column (0-indexed)
+                                            valueColumn: 2, // Salary column (0-indexed)
+                                            aggregate: 'avg',
+                                        },
+                                    },
+                                    {
+                                        type: 'pie',
+                                        title: 'Employee Count by Office',
+                                        data: {
+                                            labelColumn: 1, // Office column (0-indexed)
+                                            aggregate: 'count',
+                                        },
+                                    },
+                                ],
+                            },
+                        ],
+                    });
+
+                    console.log('✅ DataTable initialized successfully');
+                    console.log(
+                        '📊 Table data sample:',
+                        table.rows().data().toArray().slice(0, 2),
+                    );
+
+                    // Test data access
+                    const firstRow = table.row(0).data();
+                    console.log('🔍 First row data:', firstRow);
+                    console.log('🏢 Office column (index 1):', firstRow[1]);
+                    console.log('💰 Salary column (index 2):', firstRow[2]);
+                } catch (error) {
+                    console.error('❌ Error initializing DataTable:', error);
+                }
+            });
+
+            // Global error handler
+            window.addEventListener('error', function (e) {
+                console.error(
+                    '🚨 Global Error:',
+                    e.message,
+                    'at',
+                    e.filename + ':' + e.lineno,
+                );
+            });
+
+            // Create a new div element
+            const newElement = $('<div>').text(
+                'This is an element added before the table.',
+            );
+            newElement.css({
+                padding: '10px',
+                'background-color': '#f0f0f0',
+                'margin-bottom': '10px',
+            });
+
+            // Insert the new element before the DataTable table
+            // $('#debugTable').before(newElement);
+            // console.log('✅ Element added before the table');
+        </script>
+    </body>
+</html>

@@ -1,0 +1,20 @@
+{
+    "name": "datatables-chart",
+    "version": "1.0.0",
+    "main": "index.js",
+    "scripts": {
+        "lint": "eslint src/**/*.js",
+        "build": "terser src/datatables.charts.js -c -m -o dist/datatables.charts.min.js",
+        "dev": "live-server --open=./examples/"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC",
+    "description": "",
+    "devDependencies": {
+        "eslint": "^9.37.0",
+        "live-server": "^1.2.2",
+        "prettier": "^3.6.2",
+        "terser": "^5.44.0"
+    }
+}
