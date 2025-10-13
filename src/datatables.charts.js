@@ -7,8 +7,77 @@
      * @param {object} chartDef - The chart definition object from the config.
      * @returns {object} Data formatted for Chart.js ({ labels: [], datasets: [] }).
      */
+    function parseNumericValue(value) {
+        if (value === null || value === undefined || value === '') {
+            return NaN;
+        }
+
+        const str = String(value).trim();
+
+        // Remove currency codes (like IDR, USD, EUR)
+        let cleaned = str.replace(/[A-Z]{3}/gi, '');
+
+        // Remove currency symbols
+        cleaned = cleaned.replace(/[$€£¥₹]/g, '');
+
+        // Handle different number formats
+        // Check if it looks like European format (comma as decimal separator)
+        if (/^\d{1,3}(\.\d{3})*,\d{2}$/.test(cleaned.trim())) {
+            // Format like "33.800,00" - thousand separator is dot, decimal is comma
+            cleaned = cleaned.replace(/\./g, '').replace(/,/, '.');
+        } else if (/^\d+,\d{2}$/.test(cleaned.trim())) {
+            // Format like "10,00" - just decimal comma
+            cleaned = cleaned.replace(/,/, '.');
+        } else {
+            // Standard format - remove commas as thousand separators
+            cleaned = cleaned.replace(/,/g, '');
+        }
+
+        // Remove any remaining non-numeric characters except decimal point
+        cleaned = cleaned.replace(/[^\d.-]/g, '');
+
+        const result = parseFloat(cleaned);
+
+        // Debug logging for currency parsing
+        if (str !== cleaned) {
+            console.log(
+                `💱 Currency parsed: "${str}" → "${cleaned}" → ${result}`,
+            );
+        }
+
+        return result;
+    }
+
+    // Test the currency parsing function
+    function testCurrencyParsing() {
+        console.log('🧪 Testing currency parsing:');
+        const testCases = [
+            'IDR33.800,00',
+            '10,00',
+            '$1,234.56',
+            '€2.500,75',
+            '1000',
+            '1,000',
+            '1.000',
+            'USD 5,432.10',
+        ];
+
+        testCases.forEach((test) => {
+            const result = parseNumericValue(test);
+            console.log(`  "${test}" → ${result}`);
+        });
+    }
+
     function aggregateData(dt, chartDef) {
         console.log('📊 aggregateData called with chartDef:', chartDef);
+
+        // Run currency parsing tests in development
+        if (
+            typeof window !== 'undefined' &&
+            window.location.hostname === 'localhost'
+        ) {
+            testCurrencyParsing();
+        }
 
         const labelColumnIndex = chartDef.data.labelColumn;
         const valueColumnIndex = chartDef.data.valueColumn;
@@ -31,20 +100,14 @@
             const label = rowData[labelColumnIndex];
             const value =
                 valueColumnIndex !== undefined
-                    ? parseFloat(
-                          String(rowData[valueColumnIndex]).replace(
-                              /[$,]/g,
-                              '',
-                          ),
-                      )
+                    ? parseNumericValue(rowData[valueColumnIndex])
                     : 1;
 
             processedRows++;
             if (processedRows <= 3) {
                 // Log first 3 rows for debugging
                 console.log(
-                    `📋 Row ${processedRows}: label="${label}", value=${value}, rawData:`,
-                    rowData,
+                    `📋 Row ${processedRows}: label="${label}", rawValue="${rowData[valueColumnIndex]}", parsedValue=${value}`,
                 );
             }
 
