@@ -265,6 +265,15 @@
             const chartContainer = config._chartContainer;
             console.log('📦 chartContainer found:', !!chartContainer);
 
+            // Detect and apply theme
+            const currentTheme = config.theme || detectTheme(chartContainer);
+            console.log('🎨 Detected theme:', currentTheme);
+            applyTheme(chartContainer, currentTheme);
+
+            // Get theme colors
+            const themeColors = getThemeColors(currentTheme);
+            console.log('🎨 Theme colors:', themeColors);
+
             const canvas = chartContainer.find('canvas')[0]; // Get the raw canvas element
             console.log('🎨 canvas element found:', !!canvas);
             console.log('🎨 canvas details:', canvas);
@@ -354,13 +363,37 @@
                 config._chartInstance.destroy();
             }
 
+            // Create themed chart data with appropriate colors
+            const themedChartData = {
+                ...chartData,
+                datasets: chartData.datasets.map((dataset, index) => ({
+                    ...dataset,
+                    backgroundColor:
+                        chartDef.type === 'pie' || chartDef.type === 'doughnut'
+                            ? themeColors.chartColors
+                            : themeColors.chartColors[
+                                  index % themeColors.chartColors.length
+                              ],
+                    borderColor:
+                        chartDef.type === 'pie' || chartDef.type === 'doughnut'
+                            ? themeColors.chartColors
+                            : themeColors.chartColors[
+                                  index % themeColors.chartColors.length
+                              ],
+                    borderWidth:
+                        chartDef.type === 'pie' || chartDef.type === 'doughnut'
+                            ? 2
+                            : 0,
+                })),
+            };
+
             // Create the new Chart.js instance.
             console.log('🚀 Creating new Chart.js instance...');
             const ctx = canvas.getContext('2d');
             console.log('🎨 Canvas context:', ctx);
             config._chartInstance = new Chart(ctx, {
                 type: chartDef.type, // e.g., 'bar', 'pie'
-                data: chartData,
+                data: themedChartData,
                 options: {
                     responsive: true,
                     maintainAspectRatio: true,
@@ -389,7 +422,7 @@
                                 top: 20,
                                 bottom: 20,
                             },
-                            color: '#333',
+                            color: themeColors.textColor,
                         },
                         legend: {
                             display:
@@ -403,13 +436,22 @@
                                     size: 12,
                                     family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                                 },
+                                color: themeColors.textColor,
                             },
                         },
                         tooltip: {
-                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                            titleColor: '#fff',
-                            bodyColor: '#fff',
-                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            backgroundColor:
+                                currentTheme === 'dark'
+                                    ? 'rgba(45, 55, 72, 0.95)'
+                                    : 'rgba(0, 0, 0, 0.8)',
+                            titleColor:
+                                currentTheme === 'dark' ? '#ffffff' : '#fff',
+                            bodyColor:
+                                currentTheme === 'dark' ? '#e2e8f0' : '#fff',
+                            borderColor:
+                                currentTheme === 'dark'
+                                    ? 'rgba(255, 255, 255, 0.1)'
+                                    : 'rgba(255, 255, 255, 0.2)',
                             borderWidth: 1,
                             cornerRadius: 6,
                             displayColors: true,
@@ -425,10 +467,10 @@
                                               size: 11,
                                               family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                                           },
-                                          color: '#666',
+                                          color: themeColors.textColor,
                                       },
                                       grid: {
-                                          color: 'rgba(0, 0, 0, 0.1)',
+                                          color: themeColors.gridColor,
                                       },
                                   },
                                   y: {
@@ -438,10 +480,12 @@
                                               size: 11,
                                               family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                                           },
-                                          color: '#666',
+                                          color: themeColors.textColor,
                                       },
                                       grid: {
-                                          color: 'rgba(0, 0, 0, 0.1)',
+                                          color: themeColors.gridColor,
+                                          zeroLineColor:
+                                              themeColors.gridZeroColor,
                                       },
                                   },
                               }
@@ -483,18 +527,17 @@
         text: '📊 Charts',
 
         init: function (dt, node, config) {
+            // Store theme configuration
+            config.theme = config.theme || 'light';
+            console.log('🎨 Initializing with theme:', config.theme);
+
             // Create the chart container
-            // const chartContainer = $(
-            //     '<div class="dt-charts-container" style="display:block; margin-bottom: 1em; border: 2px solid red; background: yellow; min-height: 400px; height: 400px;"></div>',
-            // );
-            // chartContainer.append(
-            //     '<canvas id="dt-chart-canvas" width="800" height="350" style="width: 100%; height: 350px;"></canvas>',
-            // );
-            //
-            // Create a container div that will hold our charts, but DON'T attach it yet.
             const chartContainer = $(
                 '<div class="dt-charts-container" style="display:none; margin-bottom: 1em;"></div>',
             );
+
+            // Apply initial theme
+            applyTheme(chartContainer, config.theme);
 
             // The container will be populated with canvas and controls when a chart is rendered
 
@@ -639,6 +682,7 @@
                                 downloadChart(
                                     config._chartInstance,
                                     chartDef.title,
+                                    config.theme,
                                 );
                             });
 
@@ -748,8 +792,9 @@
      * Downloads the chart as an image
      * @param {Chart} chartInstance - The Chart.js instance
      * @param {string} title - The chart title for filename
+     * @param {string} theme - The current theme for styling feedback
      */
-    function downloadChart(chartInstance, title) {
+    function downloadChart(chartInstance, title, theme = 'light') {
         if (!chartInstance) {
             console.error('❌ No chart instance available for download');
             return;
@@ -773,22 +818,298 @@
 
             console.log('✅ Chart downloaded successfully');
 
-            // Show success feedback
+            // Show success feedback with theme-appropriate styling
+            const successBg = theme === 'dark' ? '#10b981' : '#38a169';
             const successMsg = $(
-                '<div style="position: fixed; top: 20px; right: 20px; background: #38a169; color: white; padding: 10px 15px; border-radius: 6px; z-index: 10000; font-size: 14px;">📥 Chart downloaded!</div>',
+                `<div style="position: fixed; top: 20px; right: 20px; background: ${successBg}; color: white; padding: 10px 15px; border-radius: 6px; z-index: 10000; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">📥 Chart downloaded!</div>`,
             );
             $('body').append(successMsg);
             setTimeout(() => successMsg.fadeOut(500), 2000);
         } catch (error) {
             console.error('❌ Error downloading chart:', error);
 
-            // Show error feedback
+            // Show error feedback with theme-appropriate styling
+            const errorBg = theme === 'dark' ? '#ef4444' : '#e53e3e';
             const errorMsg = $(
-                '<div style="position: fixed; top: 20px; right: 20px; background: #e53e3e; color: white; padding: 10px 15px; border-radius: 6px; z-index: 10000; font-size: 14px;">❌ Download failed!</div>',
+                `<div style="position: fixed; top: 20px; right: 20px; background: ${errorBg}; color: white; padding: 10px 15px; border-radius: 6px; z-index: 10000; font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.3);">❌ Download failed!</div>`,
             );
             $('body').append(errorMsg);
             setTimeout(() => errorMsg.fadeOut(500), 3000);
         }
+    }
+
+    /**
+     * Detects the current theme from the chart container or system preferences
+     * @param {jQuery} container - The chart container element
+     * @returns {string} The detected theme ('light', 'dark', 'auto')
+     */
+    function detectTheme(container) {
+        // Check if theme is explicitly set on container
+        const explicitTheme = container.attr('data-dt-chart-theme');
+        if (explicitTheme) {
+            return explicitTheme;
+        }
+
+        // Check parent elements for theme indicators
+        const $body = $('body');
+        const $html = $('html');
+
+        // Common dark theme class patterns
+        const darkPatterns = [
+            'dark',
+            'dark-theme',
+            'theme-dark',
+            'dark-mode',
+            'night-mode',
+        ];
+
+        for (const pattern of darkPatterns) {
+            if (
+                $body.hasClass(pattern) ||
+                $html.hasClass(pattern) ||
+                $body.attr('data-theme') === pattern ||
+                $html.attr('data-theme') === pattern
+            ) {
+                return 'dark';
+            }
+        }
+
+        // Check CSS custom properties or computed styles
+        const computedStyle = window.getComputedStyle(document.body);
+        const bgColor = computedStyle.backgroundColor;
+
+        // If background is dark, assume dark theme
+        if (
+            bgColor &&
+            bgColor !== 'rgba(0, 0, 0, 0)' &&
+            bgColor !== 'transparent'
+        ) {
+            const rgb = bgColor.match(/\d+/g);
+            if (rgb && rgb.length >= 3) {
+                const brightness =
+                    (parseInt(rgb[0]) * 299 +
+                        parseInt(rgb[1]) * 587 +
+                        parseInt(rgb[2]) * 114) /
+                    1000;
+                if (brightness < 128) {
+                    return 'dark';
+                }
+            }
+        }
+
+        // Check system preference
+        if (
+            window.matchMedia &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches
+        ) {
+            return 'auto';
+        }
+
+        return 'light';
+    }
+
+    /**
+     * Applies theme to the chart container
+     * @param {jQuery} container - The chart container element
+     * @param {string} theme - The theme to apply ('light', 'dark', 'auto', etc.)
+     */
+    function applyTheme(container, theme) {
+        console.log('🎨 Applying theme:', theme);
+
+        // Remove any existing theme classes
+        const existingThemes = [
+            'light',
+            'dark',
+            'auto',
+            'high-contrast',
+            'sepia',
+        ];
+        existingThemes.forEach((t) => {
+            container.removeAttr(`data-dt-chart-theme-${t}`);
+        });
+
+        // Apply new theme
+        container.attr('data-dt-chart-theme', theme);
+
+        // Apply to parent elements if needed for broader theme application
+        const $tableWrapper = container.closest('.dataTables_wrapper');
+        if ($tableWrapper.length) {
+            $tableWrapper.attr('data-dt-chart-theme', theme);
+        }
+    }
+
+    /**
+     * Gets theme-specific colors and styling options
+     * @param {string} theme - The theme name
+     * @returns {object} Theme color configuration
+     */
+    function getThemeColors(theme) {
+        const themes = {
+            light: {
+                backgroundColor: '#fafafa',
+                textColor: '#333333',
+                secondaryTextColor: '#666666',
+                gridColor: 'rgba(0, 0, 0, 0.1)',
+                gridZeroColor: 'rgba(0, 0, 0, 0.25)',
+                borderColor: '#ddd',
+                chartColors: [
+                    '#667eea',
+                    '#764ba2',
+                    '#f093fb',
+                    '#f5576c',
+                    '#4ecdc4',
+                    '#45b7d1',
+                    '#f9ca24',
+                    '#6c5ce7',
+                ],
+            },
+            dark: {
+                backgroundColor: 'transparent',
+                textColor: '#ffffff',
+                secondaryTextColor: '#e2e8f0',
+                gridColor: 'rgba(255, 255, 255, 0.1)',
+                gridZeroColor: 'rgba(255, 255, 255, 0.3)',
+                borderColor: '#4a5568',
+                chartColors: [
+                    '#7c3aed',
+                    '#ec4899',
+                    '#06b6d4',
+                    '#10b981',
+                    '#f59e0b',
+                    '#ef4444',
+                    '#8b5cf6',
+                    '#14b8a6',
+                ],
+            },
+            auto: {
+                // Auto theme uses system preference detection
+                backgroundColor:
+                    window.matchMedia &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches
+                        ? 'transparent'
+                        : '#fafafa',
+                textColor:
+                    window.matchMedia &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches
+                        ? '#ffffff'
+                        : '#333333',
+                secondaryTextColor:
+                    window.matchMedia &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches
+                        ? '#e2e8f0'
+                        : '#666666',
+                gridColor:
+                    window.matchMedia &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches
+                        ? 'rgba(255, 255, 255, 0.1)'
+                        : 'rgba(0, 0, 0, 0.1)',
+                gridZeroColor:
+                    window.matchMedia &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches
+                        ? 'rgba(255, 255, 255, 0.3)'
+                        : 'rgba(0, 0, 0, 0.25)',
+                borderColor:
+                    window.matchMedia &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches
+                        ? '#4a5568'
+                        : '#ddd',
+                chartColors:
+                    window.matchMedia &&
+                    window.matchMedia('(prefers-color-scheme: dark)').matches
+                        ? [
+                              '#7c3aed',
+                              '#ec4899',
+                              '#06b6d4',
+                              '#10b981',
+                              '#f59e0b',
+                              '#ef4444',
+                              '#8b5cf6',
+                              '#14b8a6',
+                          ]
+                        : [
+                              '#667eea',
+                              '#764ba2',
+                              '#f093fb',
+                              '#f5576c',
+                              '#4ecdc4',
+                              '#45b7d1',
+                              '#f9ca24',
+                              '#6c5ce7',
+                          ],
+            },
+            'high-contrast': {
+                backgroundColor: '#ffffff',
+                textColor: '#000000',
+                secondaryTextColor: '#000000',
+                gridColor: 'rgba(0, 0, 0, 0.5)',
+                gridZeroColor: 'rgba(0, 0, 0, 0.8)',
+                borderColor: '#000000',
+                chartColors: [
+                    '#000000',
+                    '#ffffff',
+                    '#ff0000',
+                    '#00ff00',
+                    '#0000ff',
+                    '#ffff00',
+                    '#ff00ff',
+                    '#00ffff',
+                ],
+            },
+            sepia: {
+                backgroundColor: '#f7f3e9',
+                textColor: '#5d4e37',
+                secondaryTextColor: '#704214',
+                gridColor: 'rgba(139, 115, 85, 0.15)',
+                gridZeroColor: 'rgba(139, 115, 85, 0.4)',
+                borderColor: '#cd853f',
+                chartColors: [
+                    '#8b4513',
+                    '#a0522d',
+                    '#cd853f',
+                    '#daa520',
+                    '#b8860b',
+                    '#d2691e',
+                    '#bc8f8f',
+                    '#f4a460',
+                ],
+            },
+        };
+
+        return themes[theme] || themes.light;
+    }
+
+    /**
+     * Updates chart colors based on theme
+     * @param {object} chartData - The chart data object
+     * @param {string} chartType - The type of chart (pie, bar, etc.)
+     * @param {object} themeColors - Theme color configuration
+     * @returns {object} Updated chart data with theme colors
+     */
+    function applyThemeColorsToChartData(chartData, chartType, themeColors) {
+        if (!chartData || !chartData.datasets) {
+            return chartData;
+        }
+
+        return {
+            ...chartData,
+            datasets: chartData.datasets.map((dataset, index) => ({
+                ...dataset,
+                backgroundColor:
+                    chartType === 'pie' || chartType === 'doughnut'
+                        ? themeColors.chartColors
+                        : themeColors.chartColors[
+                              index % themeColors.chartColors.length
+                          ],
+                borderColor:
+                    chartType === 'pie' || chartType === 'doughnut'
+                        ? themeColors.chartColors.map((color) => color)
+                        : themeColors.chartColors[
+                              index % themeColors.chartColors.length
+                          ],
+                borderWidth:
+                    chartType === 'pie' || chartType === 'doughnut' ? 2 : 0,
+            })),
+        };
     }
 
     console.log('DataTables Charts plugin loaded.');

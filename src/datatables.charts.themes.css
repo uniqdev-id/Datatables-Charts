@@ -1,0 +1,388 @@
+/**
+ * DataTables Charts - Theme System
+ *
+ * Comprehensive theming support with CSS custom properties
+ * Provides light, dark, auto themes plus customization capabilities
+ */
+
+/* ==========================================================================
+   CSS Custom Properties (CSS Variables)
+   ========================================================================== */
+
+:root {
+    /* Light Theme (Default) */
+    --dt-chart-bg-primary: #fafafa;
+    --dt-chart-bg-secondary: #ffffff;
+    --dt-chart-text-primary: #333333;
+    --dt-chart-text-secondary: #666666;
+    --dt-chart-text-muted: #999999;
+    --dt-chart-border-light: #e1e5e9;
+    --dt-chart-border-medium: #ddd;
+    --dt-chart-border-dark: #ccc;
+    --dt-chart-shadow: rgba(0, 0, 0, 0.1);
+    --dt-chart-shadow-hover: rgba(0, 0, 0, 0.15);
+    --dt-chart-grid-color: rgba(0, 0, 0, 0.1);
+    --dt-chart-grid-zero: rgba(0, 0, 0, 0.25);
+
+    /* Chart Colors */
+    --dt-chart-color-1: #667eea;
+    --dt-chart-color-2: #764ba2;
+    --dt-chart-color-3: #f093fb;
+    --dt-chart-color-4: #f5576c;
+    --dt-chart-color-5: #4ecdc4;
+    --dt-chart-color-6: #45b7d1;
+    --dt-chart-color-7: #f9ca24;
+    --dt-chart-color-8: #6c5ce7;
+
+    /* Button Colors */
+    --dt-chart-btn-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --dt-chart-btn-primary-hover: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
+    --dt-chart-btn-close: #e53e3e;
+    --dt-chart-btn-close-bg: #fff5f5;
+    --dt-chart-btn-download: #38a169;
+    --dt-chart-btn-download-bg: #f0fff4;
+
+    /* States */
+    --dt-chart-hover-bg: #f8f9ff;
+    --dt-chart-active-bg: #e8f0ff;
+    --dt-chart-loading-bg: rgba(255, 255, 255, 0.9);
+    --dt-chart-overlay-bg: rgba(255, 255, 255, 0.9);
+}
+
+/* ==========================================================================
+   Dark Theme
+   ========================================================================== */
+
+[data-dt-chart-theme="dark"] {
+    --dt-chart-bg-primary: transparent;
+    --dt-chart-bg-secondary: #2d3748;
+    --dt-chart-text-primary: #ffffff;
+    --dt-chart-text-secondary: #e2e8f0;
+    --dt-chart-text-muted: #a0aec0;
+    --dt-chart-border-light: #4a5568;
+    --dt-chart-border-medium: #2d3748;
+    --dt-chart-border-dark: #1a202c;
+    --dt-chart-shadow: rgba(0, 0, 0, 0.3);
+    --dt-chart-shadow-hover: rgba(0, 0, 0, 0.4);
+    --dt-chart-grid-color: rgba(255, 255, 255, 0.1);
+    --dt-chart-grid-zero: rgba(255, 255, 255, 0.3);
+
+    /* Chart Colors (Adjusted for dark backgrounds) */
+    --dt-chart-color-1: #7c3aed;
+    --dt-chart-color-2: #ec4899;
+    --dt-chart-color-3: #06b6d4;
+    --dt-chart-color-4: #10b981;
+    --dt-chart-color-5: #f59e0b;
+    --dt-chart-color-6: #ef4444;
+    --dt-chart-color-7: #8b5cf6;
+    --dt-chart-color-8: #14b8a6;
+
+    /* Button Colors */
+    --dt-chart-btn-primary: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+    --dt-chart-btn-primary-hover: linear-gradient(135deg, #6d28d9 0%, #db2777 100%);
+    --dt-chart-btn-close: #ef4444;
+    --dt-chart-btn-close-bg: rgba(239, 68, 68, 0.1);
+    --dt-chart-btn-download: #10b981;
+    --dt-chart-btn-download-bg: rgba(16, 185, 129, 0.1);
+
+    /* States */
+    --dt-chart-hover-bg: rgba(124, 58, 237, 0.1);
+    --dt-chart-active-bg: rgba(124, 58, 237, 0.2);
+    --dt-chart-loading-bg: rgba(45, 55, 72, 0.9);
+    --dt-chart-overlay-bg: rgba(45, 55, 72, 0.9);
+}
+
+/* ==========================================================================
+   Auto Theme (follows system preference)
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+    [data-dt-chart-theme="auto"] {
+        --dt-chart-bg-primary: transparent;
+        --dt-chart-bg-secondary: #2d3748;
+        --dt-chart-text-primary: #ffffff;
+        --dt-chart-text-secondary: #e2e8f0;
+        --dt-chart-text-muted: #a0aec0;
+        --dt-chart-border-light: #4a5568;
+        --dt-chart-border-medium: #2d3748;
+        --dt-chart-border-dark: #1a202c;
+        --dt-chart-shadow: rgba(0, 0, 0, 0.3);
+        --dt-chart-shadow-hover: rgba(0, 0, 0, 0.4);
+        --dt-chart-grid-color: rgba(255, 255, 255, 0.1);
+        --dt-chart-grid-zero: rgba(255, 255, 255, 0.3);
+
+        --dt-chart-color-1: #7c3aed;
+        --dt-chart-color-2: #ec4899;
+        --dt-chart-color-3: #06b6d4;
+        --dt-chart-color-4: #10b981;
+        --dt-chart-color-5: #f59e0b;
+        --dt-chart-color-6: #ef4444;
+        --dt-chart-color-7: #8b5cf6;
+        --dt-chart-color-8: #14b8a6;
+
+        --dt-chart-btn-primary: linear-gradient(135deg, #7c3aed 0%, #ec4899 100%);
+        --dt-chart-btn-primary-hover: linear-gradient(135deg, #6d28d9 0%, #db2777 100%);
+        --dt-chart-btn-close: #ef4444;
+        --dt-chart-btn-close-bg: rgba(239, 68, 68, 0.1);
+        --dt-chart-btn-download: #10b981;
+        --dt-chart-btn-download-bg: rgba(16, 185, 129, 0.1);
+
+        --dt-chart-hover-bg: rgba(124, 58, 237, 0.1);
+        --dt-chart-active-bg: rgba(124, 58, 237, 0.2);
+        --dt-chart-loading-bg: rgba(45, 55, 72, 0.9);
+        --dt-chart-overlay-bg: rgba(45, 55, 72, 0.9);
+    }
+}
+
+/* ==========================================================================
+   High Contrast Theme (Accessibility)
+   ========================================================================== */
+
+[data-dt-chart-theme="high-contrast"] {
+    --dt-chart-bg-primary: #ffffff;
+    --dt-chart-bg-secondary: #ffffff;
+    --dt-chart-text-primary: #000000;
+    --dt-chart-text-secondary: #000000;
+    --dt-chart-text-muted: #333333;
+    --dt-chart-border-light: #000000;
+    --dt-chart-border-medium: #000000;
+    --dt-chart-border-dark: #000000;
+    --dt-chart-shadow: rgba(0, 0, 0, 0.5);
+    --dt-chart-shadow-hover: rgba(0, 0, 0, 0.7);
+    --dt-chart-grid-color: rgba(0, 0, 0, 0.5);
+    --dt-chart-grid-zero: rgba(0, 0, 0, 0.8);
+
+    /* High contrast colors */
+    --dt-chart-color-1: #000000;
+    --dt-chart-color-2: #ffffff;
+    --dt-chart-color-3: #ff0000;
+    --dt-chart-color-4: #00ff00;
+    --dt-chart-color-5: #0000ff;
+    --dt-chart-color-6: #ffff00;
+    --dt-chart-color-7: #ff00ff;
+    --dt-chart-color-8: #00ffff;
+
+    --dt-chart-btn-primary: linear-gradient(135deg, #000000 0%, #333333 100%);
+    --dt-chart-btn-primary-hover: linear-gradient(135deg, #333333 0%, #666666 100%);
+    --dt-chart-btn-close: #ff0000;
+    --dt-chart-btn-close-bg: #ffe6e6;
+    --dt-chart-btn-download: #00aa00;
+    --dt-chart-btn-download-bg: #e6ffe6;
+
+    --dt-chart-hover-bg: #f0f0f0;
+    --dt-chart-active-bg: #e0e0e0;
+    --dt-chart-loading-bg: rgba(255, 255, 255, 0.95);
+    --dt-chart-overlay-bg: rgba(255, 255, 255, 0.95);
+}
+
+/* ==========================================================================
+   Sepia Theme (Easy on the eyes)
+   ========================================================================== */
+
+[data-dt-chart-theme="sepia"] {
+    --dt-chart-bg-primary: #f7f3e9;
+    --dt-chart-bg-secondary: #faf6ed;
+    --dt-chart-text-primary: #5d4e37;
+    --dt-chart-text-secondary: #704214;
+    --dt-chart-text-muted: #8b7355;
+    --dt-chart-border-light: #d2b48c;
+    --dt-chart-border-medium: #cd853f;
+    --dt-chart-border-dark: #a0522d;
+    --dt-chart-shadow: rgba(139, 115, 85, 0.2);
+    --dt-chart-shadow-hover: rgba(139, 115, 85, 0.3);
+    --dt-chart-grid-color: rgba(139, 115, 85, 0.15);
+    --dt-chart-grid-zero: rgba(139, 115, 85, 0.4);
+
+    --dt-chart-color-1: #8b4513;
+    --dt-chart-color-2: #a0522d;
+    --dt-chart-color-3: #cd853f;
+    --dt-chart-color-4: #daa520;
+    --dt-chart-color-5: #b8860b;
+    --dt-chart-color-6: #d2691e;
+    --dt-chart-color-7: #bc8f8f;
+    --dt-chart-color-8: #f4a460;
+
+    --dt-chart-btn-primary: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+    --dt-chart-btn-primary-hover: linear-gradient(135deg, #7a3a0f 0%, #8b4513 100%);
+    --dt-chart-btn-close: #dc143c;
+    --dt-chart-btn-close-bg: #ffe4e1;
+    --dt-chart-btn-download: #228b22;
+    --dt-chart-btn-download-bg: #f0fff0;
+
+    --dt-chart-hover-bg: #faf6ed;
+    --dt-chart-active-bg: #f5efdc;
+    --dt-chart-loading-bg: rgba(250, 246, 237, 0.9);
+    --dt-chart-overlay-bg: rgba(250, 246, 237, 0.9);
+}
+
+/* ==========================================================================
+   Theme Application to Components
+   ========================================================================== */
+
+/* Chart Container */
+.dt-charts-container {
+    background-color: var(--dt-chart-bg-primary);
+    color: var(--dt-chart-text-primary);
+    border-color: var(--dt-chart-border-medium);
+    box-shadow: 0 2px 4px var(--dt-chart-shadow);
+}
+
+.dt-charts-container:hover {
+    box-shadow: 0 4px 12px var(--dt-chart-shadow-hover);
+}
+
+/* Control Buttons */
+.dt-chart-btn {
+    background: var(--dt-chart-bg-secondary);
+    border-color: var(--dt-chart-border-light);
+    color: var(--dt-chart-text-secondary);
+    box-shadow: 0 2px 4px var(--dt-chart-shadow);
+}
+
+.dt-chart-btn:hover {
+    background: var(--dt-chart-hover-bg);
+    border-color: var(--dt-chart-color-1);
+    color: var(--dt-chart-color-1);
+    box-shadow: 0 4px 8px var(--dt-chart-shadow-hover);
+}
+
+.dt-chart-btn.close-btn:hover {
+    background: var(--dt-chart-btn-close-bg);
+    border-color: var(--dt-chart-btn-close);
+    color: var(--dt-chart-btn-close);
+}
+
+.dt-chart-btn.download-btn:hover {
+    background: var(--dt-chart-btn-download-bg);
+    border-color: var(--dt-chart-btn-download);
+    color: var(--dt-chart-btn-download);
+}
+
+/* Chart Footer */
+.dt-chart-footer {
+    background: var(--dt-chart-overlay-bg);
+    border-color: var(--dt-chart-border-light);
+    box-shadow: 0 2px 8px var(--dt-chart-shadow);
+}
+
+.dt-chart-title {
+    color: var(--dt-chart-text-primary);
+}
+
+/* Footer Action Buttons */
+.dt-chart-action-btn {
+    background: transparent;
+    border-color: var(--dt-chart-border-light);
+    color: var(--dt-chart-text-secondary);
+}
+
+.dt-chart-action-btn:hover {
+    background: var(--dt-chart-hover-bg);
+    border-color: var(--dt-chart-color-1);
+    color: var(--dt-chart-color-1);
+}
+
+.dt-chart-action-btn.download:hover {
+    border-color: var(--dt-chart-btn-download);
+    color: var(--dt-chart-btn-download);
+}
+
+.dt-chart-action-btn.close:hover {
+    border-color: var(--dt-chart-btn-close);
+    color: var(--dt-chart-btn-close);
+}
+
+/* Main Charts Button */
+.dt-button.buttons-charts {
+    background: var(--dt-chart-btn-primary);
+    color: var(--dt-chart-text-primary);
+}
+
+.dt-button.buttons-charts:hover {
+    background: var(--dt-chart-btn-primary-hover);
+}
+
+/* Dropdown Menu */
+.dt-button-collection {
+    background: var(--dt-chart-bg-secondary);
+    border-color: var(--dt-chart-border-light);
+    box-shadow: 0 8px 25px var(--dt-chart-shadow-hover);
+}
+
+.dt-button-collection .dt-button {
+    background: var(--dt-chart-bg-secondary);
+    color: var(--dt-chart-text-primary);
+    border-bottom-color: var(--dt-chart-border-light);
+}
+
+.dt-button-collection .dt-button:hover {
+    background-color: var(--dt-chart-hover-bg);
+    color: var(--dt-chart-color-1);
+}
+
+/* Loading State */
+.dt-charts-container.loading::before {
+    color: var(--dt-chart-text-secondary);
+}
+
+.dt-charts-container.loading::after {
+    border-color: var(--dt-chart-border-light);
+    border-top-color: var(--dt-chart-color-1);
+}
+
+/* ==========================================================================
+   Responsive Theme Adjustments
+   ========================================================================== */
+
+@media (max-width: 768px) {
+    [data-dt-chart-theme="dark"] .dt-chart-controls,
+    [data-dt-chart-theme="auto"] .dt-chart-controls {
+        background: var(--dt-chart-loading-bg);
+        backdrop-filter: blur(5px);
+        border-radius: 6px;
+        padding: 4px;
+    }
+}
+
+/* ==========================================================================
+   Theme Transition Effects
+   ========================================================================== */
+
+.dt-charts-container,
+.dt-chart-btn,
+.dt-chart-footer,
+.dt-chart-action-btn,
+.dt-button.buttons-charts,
+.dt-button-collection,
+.dt-button-collection .dt-button {
+    transition:
+        background-color 0.3s ease,
+        border-color 0.3s ease,
+        color 0.3s ease,
+        box-shadow 0.3s ease;
+}
+
+/* ==========================================================================
+   Print Styles (Force light theme for printing)
+   ========================================================================== */
+
+@media print {
+    [data-dt-chart-theme] {
+        --dt-chart-bg-primary: #ffffff;
+        --dt-chart-bg-secondary: #ffffff;
+        --dt-chart-text-primary: #000000;
+        --dt-chart-text-secondary: #333333;
+        --dt-chart-text-muted: #666666;
+        --dt-chart-border-light: #cccccc;
+        --dt-chart-border-medium: #999999;
+        --dt-chart-border-dark: #666666;
+        --dt-chart-shadow: none;
+        --dt-chart-shadow-hover: none;
+        --dt-chart-grid-color: rgba(0, 0, 0, 0.3);
+        --dt-chart-grid-zero: rgba(0, 0, 0, 0.5);
+    }
+
+    .dt-chart-controls {
+        display: none !important;
+    }
+}
