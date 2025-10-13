@@ -349,7 +349,7 @@
 
             // Add success indicator
             const successMsg = $(
-                '<div style="text-align: center; color: green; font-size: 12px; margin-top: 5px;">✅ Chart loaded</div>',
+                '<div style="text-align: center; color: green; font-size: 12px; margin-top: 5px; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 15; background: rgba(255,255,255,0.9); padding: 5px 10px; border-radius: 4px;">✅ Chart loaded</div>',
             );
             chartContainer.append(successMsg);
             setTimeout(() => successMsg.fadeOut(), 2000);
@@ -388,8 +388,8 @@
                 '<div class="dt-charts-container" style="display:none; margin-bottom: 1em;"></div>',
             );
 
-            // Add a canvas element inside the container where Chart.js will draw.
-            chartContainer.append('<canvas id="dt-chart-canvas"></canvas>');
+            // The container will be populated with canvas and controls when a chart is rendered
+
             config._chartContainer = chartContainer;
 
             console.log('📦 Chart container created:', chartContainer);
@@ -499,10 +499,40 @@
 
                         // Add loading state
                         config._chartContainer.addClass('loading');
-                        //<canvas id="dt-chart-canvas"></canvas>
-                        config._chartContainer.html(
-                            '<canvas id="dt-chart-canvas" width="800" height="350" style="width: 100%; height: 350px;"></canvas>',
-                        );
+
+                        // Create the chart container with controls and footer
+                        const chartHtml = `
+                            <div class="dt-chart-controls">
+                                <button class="dt-chart-btn close-btn" title="Close Chart" data-action="close">✕</button>
+                                <button class="dt-chart-btn download-btn" title="Download Chart" data-action="download">⬇</button>
+                            </div>
+                            <canvas id="dt-chart-canvas" width="800" height="350" style="width: 100%; height: 350px;"></canvas>
+                            <div class="dt-chart-footer">
+                                <div class="dt-chart-title">${chartDef.title}</div>
+                                <div class="dt-chart-actions">
+                                    <button class="dt-chart-action-btn download" data-action="download">📥 Download</button>
+                                    <button class="dt-chart-action-btn close" data-action="close">✕ Close</button>
+                                </div>
+                            </div>
+                        `;
+
+                        config._chartContainer.html(chartHtml);
+
+                        // Add event listeners for control buttons
+                        config._chartContainer
+                            .find('[data-action="close"]')
+                            .on('click', function () {
+                                closeChart(config);
+                            });
+
+                        config._chartContainer
+                            .find('[data-action="download"]')
+                            .on('click', function () {
+                                downloadChart(
+                                    config._chartInstance,
+                                    chartDef.title,
+                                );
+                            });
 
                         console.log('🎯 Calling renderChart...');
 
@@ -584,6 +614,74 @@
             });
         },
     };
+
+    /**
+     * Closes the chart container and cleans up resources
+     * @param {object} config - The button configuration object
+     */
+    function closeChart(config) {
+        console.log('🗑️ Closing chart...');
+
+        if (config._chartInstance) {
+            config._chartInstance.destroy();
+            config._chartInstance = null;
+            console.log('📊 Chart instance destroyed');
+        }
+
+        if (config._chartContainer) {
+            config._chartContainer.fadeOut(300, function () {
+                $(this).hide();
+                console.log('📦 Chart container hidden');
+            });
+        }
+    }
+
+    /**
+     * Downloads the chart as an image
+     * @param {Chart} chartInstance - The Chart.js instance
+     * @param {string} title - The chart title for filename
+     */
+    function downloadChart(chartInstance, title) {
+        if (!chartInstance) {
+            console.error('❌ No chart instance available for download');
+            return;
+        }
+
+        try {
+            console.log('💾 Starting chart download...');
+
+            // Get the canvas from the chart instance
+            const canvas = chartInstance.canvas;
+
+            // Create a download link
+            const link = document.createElement('a');
+            link.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_chart.png`;
+            link.href = canvas.toDataURL('image/png');
+
+            // Trigger the download
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            console.log('✅ Chart downloaded successfully');
+
+            // Show success feedback
+            const successMsg = $(
+                '<div style="position: fixed; top: 20px; right: 20px; background: #38a169; color: white; padding: 10px 15px; border-radius: 6px; z-index: 10000; font-size: 14px;">📥 Chart downloaded!</div>',
+            );
+            $('body').append(successMsg);
+            setTimeout(() => successMsg.fadeOut(500), 2000);
+        } catch (error) {
+            console.error('❌ Error downloading chart:', error);
+
+            // Show error feedback
+            const errorMsg = $(
+                '<div style="position: fixed; top: 20px; right: 20px; background: #e53e3e; color: white; padding: 10px 15px; border-radius: 6px; z-index: 10000; font-size: 14px;">❌ Download failed!</div>',
+            );
+            $('body').append(errorMsg);
+            setTimeout(() => errorMsg.fadeOut(500), 3000);
+        }
+    }
 
     console.log('DataTables Charts plugin loaded.');
 })(window, document, jQuery, jQuery.fn.dataTable);
