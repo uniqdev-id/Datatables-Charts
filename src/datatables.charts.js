@@ -400,26 +400,13 @@
             console.log('📋 Table container:', tableContainer);
             console.log('📋 Inserting container before table...');
 
-            // Create a new div element
-            const newElement = $('<div>').text(
-                'This is an element added before the table. Defined in main code!',
-            );
-            newElement.css({
-                padding: '10px',
-                'background-color': '#f0f0f0',
-                'margin-bottom': '10px',
-            });
-
-            // Insert the new element before the table container
-            tableContainer.before(newElement);
-
             // Use the 'init.dt' event, which fires only after the table is fully initialized.
             // We use .one() so this event listener is automatically removed after it runs once.
             dt.one('init.dt', function () {
                 // NOW we can be sure that dt.table().container() refers to the correct
                 // dataTables_wrapper div, and we can safely insert our element.
                 tableContainer.before(chartContainer);
-                $(dt.table().container()).before(newElement);
+                // $(dt.table().container()).before(newElement);
             });
 
             console.log(

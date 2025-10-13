@@ -5,10 +5,10 @@
  */
 
 .dt-charts-container {
-    border: 1px solid #ddd;
+    /*border: 1px solid #ddd;*/
     padding: 20px;
     border-radius: 8px;
-    background-color: #fafafa;
+    /*background-color: #fafafa;*/
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
     margin-bottom: 20px;
     min-height: 400px;
@@ -137,15 +137,34 @@
     border: none;
     font-weight: 500;
     border-radius: 6px;
-    padding: 8px 16px;
+    padding: 8px 16px 8px 12px;
     transition: all 0.3s ease;
     box-shadow: 0 2px 4px rgba(102, 126, 234, 0.2);
+    position: relative;
+}
+
+/* Add dropdown arrow indicator */
+.dt-button.buttons-charts::after {
+    content: '▼';
+    margin-left: 8px;
+    font-size: 10px;
+    opacity: 0.8;
+    transition: transform 0.3s ease;
+}
+
+.dt-button.buttons-charts:hover::after {
+    transform: translateY(1px);
 }
 
 .dt-button.buttons-charts:hover {
     background: linear-gradient(135deg, #5a6fd8 0%, #6a4190 100%);
     box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
     transform: translateY(-1px);
+}
+
+/* When dropdown is open, rotate the arrow */
+.dt-button.buttons-charts.dt-button-active::after {
+    transform: rotate(180deg);
 }
 
 /* Custom dropdown menu styling */
