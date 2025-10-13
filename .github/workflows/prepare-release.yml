@@ -75,8 +75,11 @@ jobs:
               run: |
                   NEW_VERSION=${{ steps.version.outputs.NEW_VERSION }}
 
+                  # Current version
+                  npm version
+
                   # Update package.json
-                  npm version $NEW_VERSION --no-git-tag-version
+                  npm version $NEW_VERSION --no-git-tag-version --allow-same-version
 
                   # Update version in source files if they contain version info
                   # if grep -q "version.*:" src/datatables.charts.js; then
