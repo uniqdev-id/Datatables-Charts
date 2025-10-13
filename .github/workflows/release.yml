@@ -1,156 +1,156 @@
 name: Release
 
 on:
-  push:
-    tags:
-      - 'v*'
-  workflow_dispatch:
-    inputs:
-      version:
-        description: 'Release version (e.g., v1.0.0)'
-        required: true
-        type: string
+    push:
+        tags:
+            - 'v*'
+    workflow_dispatch:
+        inputs:
+            version:
+                description: 'Release version (e.g., v1.0.0)'
+                required: true
+                type: string
 
 jobs:
-  build-and-release:
-    runs-on: ubuntu-latest
+    build-and-release:
+        runs-on: ubuntu-latest
 
-    permissions:
-      contents: write
-      packages: write
+        permissions:
+            contents: write
+            packages: write
 
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18'
+                  cache: 'npm'
 
-      - name: Install dependencies
-        run: npm ci
+            - name: Install dependencies
+              run: npm ci
 
-      - name: Run linting
-        run: npm run lint
+            - name: Run linting
+              run: npm run lint
 
-      - name: Build minified version
-        run: npm run build
+            - name: Build minified version
+              run: npm run build
 
-      - name: Verify build outputs
-        run: |
-          echo "Checking build outputs..."
-          ls -la dist/
-          echo "Source files:"
-          ls -la src/
+            - name: Verify build outputs
+              run: |
+                  echo "Checking build outputs..."
+                  ls -la dist/
+                  echo "Source files:"
+                  ls -la src/
 
-      - name: Get version from tag or input
-        id: version
-        run: |
-          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
-            VERSION="${{ github.event.inputs.version }}"
-          else
-            VERSION=${GITHUB_REF#refs/tags/}
-          fi
-          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
-          echo "Release version: $VERSION"
+            - name: Get version from tag or input
+              id: version
+              run: |
+                  if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+                    VERSION="${{ github.event.inputs.version }}"
+                  else
+                    VERSION=${GITHUB_REF#refs/tags/}
+                  fi
+                  echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+                  echo "Release version: $VERSION"
 
-      - name: Update package.json version
-        run: |
-          VERSION=${{ steps.version.outputs.VERSION }}
-          # Remove 'v' prefix if present
-          VERSION_NUMBER=${VERSION#v}
-          npm version $VERSION_NUMBER --no-git-tag-version
+            - name: Update package.json version
+              run: |
+                  VERSION=${{ steps.version.outputs.VERSION }}
+                  # Remove 'v' prefix if present
+                  VERSION_NUMBER=${VERSION#v}
+                  npm version $VERSION_NUMBER --no-git-tag-version --allow-same-version
 
-      - name: Create release archive
-        run: |
-          mkdir -p release-assets
+            - name: Create release archive
+              run: |
+                  mkdir -p release-assets
 
-          # Create source archive
-          zip -r release-assets/datatables-chart-src.zip src/ examples/ README.md package.json
+                  # Create source archive
+                  zip -r release-assets/datatables-chart-src.zip src/ examples/ README.md package.json
 
-          # Create distribution archive with minified files
-          zip -r release-assets/datatables-chart-dist.zip dist/ src/datatables.charts.css README.md
+                  # Create distribution archive with minified files
+                  zip -r release-assets/datatables-chart-dist.zip dist/ src/datatables.charts.css README.md
 
-          # Create complete package
-          zip -r release-assets/datatables-chart-complete.zip . -x "node_modules/*" ".git/*" "release-assets/*"
+                  # Create complete package
+                  zip -r release-assets/datatables-chart-complete.zip . -x "node_modules/*" ".git/*" "release-assets/*"
 
-      - name: Generate changelog
-        id: changelog
-        run: |
-          VERSION=${{ steps.version.outputs.VERSION }}
+            - name: Generate changelog
+              id: changelog
+              run: |
+                  VERSION=${{ steps.version.outputs.VERSION }}
 
-          # Get commits since last tag
-          PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
+                  # Get commits since last tag
+                  PREVIOUS_TAG=$(git describe --tags --abbrev=0 HEAD^ 2>/dev/null || echo "")
 
-          if [ -n "$PREVIOUS_TAG" ]; then
-            COMMITS=$(git log --pretty=format:"- %s" $PREVIOUS_TAG..HEAD)
-          else
-            COMMITS=$(git log --pretty=format:"- %s")
-          fi
+                  if [ -n "$PREVIOUS_TAG" ]; then
+                    COMMITS=$(git log --pretty=format:"- %s" $PREVIOUS_TAG..HEAD)
+                  else
+                    COMMITS=$(git log --pretty=format:"- %s")
+                  fi
 
-          # Create changelog
-          cat > CHANGELOG.md << EOF
-          ## What's Changed in $VERSION
+                  # Create changelog
+                  cat > CHANGELOG.md << EOF
+                  ## What's Changed in $VERSION
 
-          ### Features & Improvements
-          $COMMITS
+                  ### Features & Improvements
+                  $COMMITS
 
-          ### Files Included
-          - **datatables-chart-dist.zip**: Minified production files ready to use
-          - **datatables-chart-src.zip**: Source files and examples for development
-          - **datatables-chart-complete.zip**: Complete package with all files
+                  ### Files Included
+                  - **datatables-chart-dist.zip**: Minified production files ready to use
+                  - **datatables-chart-src.zip**: Source files and examples for development
+                  - **datatables-chart-complete.zip**: Complete package with all files
 
-          ### Installation
-          1. Download the appropriate zip file
-          2. Extract to your project directory
-          3. Include the CSS and JS files in your HTML:
-             \`\`\`html
-             <link rel="stylesheet" href="path/to/datatables.charts.css">
-             <script src="path/to/datatables.charts.min.js"></script>
-             \`\`\`
+                  ### Installation
+                  1. Download the appropriate zip file
+                  2. Extract to your project directory
+                  3. Include the CSS and JS files in your HTML:
+                     \`\`\`html
+                     <link rel="stylesheet" href="path/to/datatables.charts.css">
+                     <script src="path/to/datatables.charts.min.js"></script>
+                     \`\`\`
 
-          ### Quick Start
-          See the examples folder for usage demonstrations.
-          EOF
+                  ### Quick Start
+                  See the examples folder for usage demonstrations.
+                  EOF
 
-          echo "CHANGELOG_CONTENT<<EOF" >> $GITHUB_OUTPUT
-          cat CHANGELOG.md >> $GITHUB_OUTPUT
-          echo "EOF" >> $GITHUB_OUTPUT
+                  echo "CHANGELOG_CONTENT<<EOF" >> $GITHUB_OUTPUT
+                  cat CHANGELOG.md >> $GITHUB_OUTPUT
+                  echo "EOF" >> $GITHUB_OUTPUT
 
-      - name: Create GitHub Release
-        uses: softprops/action-gh-release@v1
-        with:
-          tag_name: ${{ steps.version.outputs.VERSION }}
-          name: DataTables Charts Plugin ${{ steps.version.outputs.VERSION }}
-          body: ${{ steps.changelog.outputs.CHANGELOG_CONTENT }}
-          files: |
-            release-assets/datatables-chart-dist.zip
-            release-assets/datatables-chart-src.zip
-            release-assets/datatables-chart-complete.zip
-            dist/datatables.charts.min.js
-            src/datatables.charts.css
-            src/datatables.charts.js
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+            - name: Create GitHub Release
+              uses: softprops/action-gh-release@v1
+              with:
+                  tag_name: ${{ steps.version.outputs.VERSION }}
+                  name: DataTables Charts Plugin ${{ steps.version.outputs.VERSION }}
+                  body: ${{ steps.changelog.outputs.CHANGELOG_CONTENT }}
+                  files: |
+                      release-assets/datatables-chart-dist.zip
+                      release-assets/datatables-chart-src.zip
+                      release-assets/datatables-chart-complete.zip
+                      dist/datatables.charts.min.js
+                      src/datatables.charts.css
+                      src/datatables.charts.js
+                  draft: false
+                  prerelease: false
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Post-release summary
-        run: |
-          echo "## Release Summary" >> $GITHUB_STEP_SUMMARY
-          echo "✅ Successfully created release ${{ steps.version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Released Assets:" >> $GITHUB_STEP_SUMMARY
-          echo "- datatables-chart-dist.zip (Production files)" >> $GITHUB_STEP_SUMMARY
-          echo "- datatables-chart-src.zip (Source + examples)" >> $GITHUB_STEP_SUMMARY
-          echo "- datatables-chart-complete.zip (Full package)" >> $GITHUB_STEP_SUMMARY
-          echo "- Individual JS/CSS files" >> $GITHUB_STEP_SUMMARY
-          echo "" >> $GITHUB_STEP_SUMMARY
-          echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
-          echo "- Release is now available on GitHub" >> $GITHUB_STEP_SUMMARY
-          echo "- Users can download and install the plugin" >> $GITHUB_STEP_SUMMARY
-          echo "- Check the release page for installation instructions" >> $GITHUB_STEP_SUMMARY
+            - name: Post-release summary
+              run: |
+                  echo "## Release Summary" >> $GITHUB_STEP_SUMMARY
+                  echo "✅ Successfully created release ${{ steps.version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "### Released Assets:" >> $GITHUB_STEP_SUMMARY
+                  echo "- datatables-chart-dist.zip (Production files)" >> $GITHUB_STEP_SUMMARY
+                  echo "- datatables-chart-src.zip (Source + examples)" >> $GITHUB_STEP_SUMMARY
+                  echo "- datatables-chart-complete.zip (Full package)" >> $GITHUB_STEP_SUMMARY
+                  echo "- Individual JS/CSS files" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
+                  echo "- Release is now available on GitHub" >> $GITHUB_STEP_SUMMARY
+                  echo "- Users can download and install the plugin" >> $GITHUB_STEP_SUMMARY
+                  echo "- Check the release page for installation instructions" >> $GITHUB_STEP_SUMMARY
