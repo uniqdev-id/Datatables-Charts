@@ -189,19 +189,25 @@
             ) {
                 console.log('⚠️ Canvas has zero dimensions, forcing resize...');
 
-                // Set both HTML attributes and CSS styles
-                canvas.width = 800;
-                canvas.height = 350;
+                // Set reasonable default dimensions with proper aspect ratio
+                const defaultWidth = 600;
+                const defaultHeight = 400;
+
+                canvas.width = defaultWidth;
+                canvas.height = defaultHeight;
                 canvas.style.display = 'block';
-                canvas.style.width = '100%';
-                canvas.style.height = '350px';
+                canvas.style.width = 'auto';
+                canvas.style.height = 'auto';
+                canvas.style.maxWidth = '100%';
 
                 // Force the container to be visible and sized
                 chartContainer.css({
-                    display: 'block',
+                    display: 'flex',
+                    'align-items': 'center',
+                    'justify-content': 'center',
                     width: '100%',
-                    height: '400px',
                     'min-height': '400px',
+                    height: 'auto',
                 });
 
                 // Trigger a reflow
@@ -248,32 +254,87 @@
                 type: chartDef.type, // e.g., 'bar', 'pie'
                 data: chartData,
                 options: {
-                    responsive: false,
-                    maintainAspectRatio: false,
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio:
+                        chartDef.type === 'pie' || chartDef.type === 'doughnut'
+                            ? 1
+                            : 1.5,
                     animation: {
                         duration: 1000,
+                        easing: 'easeInOutQuart',
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index',
                     },
                     plugins: {
                         title: {
                             display: true,
                             text: chartDef.title,
                             font: {
-                                size: 16,
+                                size: 18,
                                 weight: 'bold',
+                                family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
                             },
+                            padding: {
+                                top: 20,
+                                bottom: 20,
+                            },
+                            color: '#333',
                         },
                         legend: {
                             display:
                                 chartDef.type === 'pie' ||
                                 chartDef.type === 'doughnut',
                             position: 'bottom',
+                            labels: {
+                                padding: 20,
+                                usePointStyle: true,
+                                font: {
+                                    size: 12,
+                                    family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                },
+                            },
+                        },
+                        tooltip: {
+                            backgroundColor: 'rgba(0, 0, 0, 0.8)',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            borderColor: 'rgba(255, 255, 255, 0.2)',
+                            borderWidth: 1,
+                            cornerRadius: 6,
+                            displayColors: true,
+                            padding: 12,
                         },
                     },
                     scales:
                         chartDef.type !== 'pie' && chartDef.type !== 'doughnut'
                             ? {
+                                  x: {
+                                      ticks: {
+                                          font: {
+                                              size: 11,
+                                              family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                          },
+                                          color: '#666',
+                                      },
+                                      grid: {
+                                          color: 'rgba(0, 0, 0, 0.1)',
+                                      },
+                                  },
                                   y: {
                                       beginAtZero: true,
+                                      ticks: {
+                                          font: {
+                                              size: 11,
+                                              family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                          },
+                                          color: '#666',
+                                      },
+                                      grid: {
+                                          color: 'rgba(0, 0, 0, 0.1)',
+                                      },
                                   },
                               }
                             : undefined,
@@ -451,6 +512,7 @@
 
                         // Add loading state
                         config._chartContainer.addClass('loading');
+                        //<canvas id="dt-chart-canvas"></canvas>
                         config._chartContainer.html(
                             '<canvas id="dt-chart-canvas" width="800" height="350" style="width: 100%; height: 350px;"></canvas>',
                         );

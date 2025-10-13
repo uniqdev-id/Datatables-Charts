@@ -3,7 +3,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>DataTables Charts Plugin - Phase 2 Demo</title>
+        <title>DataTables Charts Plugin - UI Polished Demo</title>
 
         <!-- DataTables CSS -->
         <link
@@ -31,287 +31,358 @@
             type="text/css"
             href="../src/datatables.charts.css"
         />
+
+        <style>
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                    sans-serif;
+                background-color: #f8f9fa;
+                margin: 0;
+                padding: 0;
+            }
+
+            .main-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background: white;
+                min-height: 100vh;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            }
+
+            .content-wrapper {
+                padding: 30px;
+            }
+
+            h1 {
+                color: #2c3e50;
+                margin-bottom: 10px;
+                font-weight: 700;
+                font-size: 28px;
+            }
+
+            /* Enhanced info boxes */
+            .info-box {
+                border-radius: 10px;
+                margin-bottom: 25px;
+                padding: 20px;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            .info-box.demo-instructions {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+            }
+
+            .info-box.chart-list {
+                background-color: #fff3cd;
+                border-left: 4px solid #ffc107;
+            }
+
+            .info-box h3,
+            .info-box h4 {
+                margin-top: 0;
+            }
+
+            .info-box ol,
+            .info-box ul {
+                margin-bottom: 0;
+            }
+
+            /* Table styling */
+            .dataTables_wrapper {
+                margin-top: 20px;
+            }
+
+            table.dataTable {
+                border-collapse: separate;
+                border-spacing: 0;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            }
+
+            table.dataTable thead th {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                font-weight: 600;
+                border: none;
+                padding: 15px 12px;
+            }
+
+            table.dataTable tbody td {
+                padding: 12px;
+                border-bottom: 1px solid #f1f3f4;
+            }
+
+            table.dataTable tbody tr:hover {
+                background-color: #f8f9ff;
+            }
+        </style>
     </head>
     <body>
-        <div style="padding: 20px">
-            <h1>DataTables Charts Plugin - Phase 2 Demo</h1>
-            <div
-                style="
-                    background-color: #e8f4fd;
-                    padding: 15px;
-                    border-radius: 8px;
-                    margin-bottom: 20px;
-                    border-left: 4px solid #2196f3;
-                "
-            >
-                <h3 style="margin-top: 0; color: #1976d2">
-                    🎯 Demo Instructions
-                </h3>
-                <ol style="margin-bottom: 0">
-                    <li>
-                        <strong>Basic Usage:</strong> Click the
-                        <strong>"Show Charts"</strong> button to see available
-                        chart options
-                    </li>
-                    <li>
-                        <strong>Chart Types:</strong> Try different charts (Bar,
-                        Pie, Doughnut) with various aggregations (Count,
-                        Average, Sum)
-                    </li>
-                    <li>
-                        <strong>Interactive Filtering:</strong> Use the search
-                        box to filter data (try "London", "Tokyo", "Engineer")
-                        and watch charts update
-                    </li>
-                    <li>
-                        <strong>Dynamic Updates:</strong> Charts automatically
-                        reflect the currently filtered table data
-                    </li>
-                </ol>
-            </div>
+        <div class="main-container">
+            <div class="content-wrapper">
+                <h1>📊 DataTables Charts Plugin - UI Polished Demo</h1>
+                <div class="info-box demo-instructions">
+                    <h3>🎯 Enhanced Demo Features</h3>
+                    <ol>
+                        <li>
+                            <strong>Fixed Chart Stretching:</strong> Charts now
+                            maintain proper aspect ratios and don't stretch
+                        </li>
+                        <li>
+                            <strong>Enhanced UI:</strong> Improved button
+                            styling with gradients and smooth hover effects
+                        </li>
+                        <li>
+                            <strong>Responsive Design:</strong> Charts
+                            automatically adapt to different screen sizes
+                        </li>
+                        <li>
+                            <strong>Better Animations:</strong> Smooth
+                            transitions and modern visual effects
+                        </li>
+                        <li>
+                            <strong>Interactive Filtering:</strong> Search and
+                            watch charts update dynamically
+                        </li>
+                    </ol>
+                </div>
 
-            <div
-                style="
-                    background-color: #fff3cd;
-                    padding: 15px;
-                    border-radius: 8px;
-                    margin-bottom: 20px;
-                    border-left: 4px solid #ffc107;
-                "
-            >
-                <h4 style="margin-top: 0; color: #856404">
-                    📊 Available Charts
-                </h4>
-                <ul style="margin-bottom: 0; columns: 2">
-                    <li>
-                        <strong>Average Salary by Office</strong> - Bar chart
-                        showing salary averages
-                    </li>
-                    <li>
-                        <strong>Employee Count by Office</strong> - Pie chart
-                        showing distribution
-                    </li>
-                    <li>
-                        <strong>Total Salary Budget</strong> - Bar chart showing
-                        office budgets
-                    </li>
-                    <li>
-                        <strong>Position Distribution</strong> - Doughnut chart
-                        of roles
-                    </li>
-                    <li>
-                        <strong>Average Age by Office</strong> - Bar chart of
-                        age demographics
-                    </li>
-                </ul>
-            </div>
+                <div class="info-box chart-list">
+                    <h4 style="color: #856404">📊 Available Charts</h4>
+                    <ul style="columns: 2">
+                        <li>
+                            <strong>Average Salary by Office</strong> - Bar
+                            chart showing salary averages
+                        </li>
+                        <li>
+                            <strong>Employee Count by Office</strong> - Pie
+                            chart showing distribution
+                        </li>
+                        <li>
+                            <strong>Total Salary Budget</strong> - Bar chart
+                            showing office budgets
+                        </li>
+                        <li>
+                            <strong>Position Distribution</strong> - Doughnut
+                            chart of roles
+                        </li>
+                        <li>
+                            <strong>Average Age by Office</strong> - Bar chart
+                            of age demographics
+                        </li>
+                    </ul>
+                </div>
 
-            <table id="example" class="display" style="width: 100%">
-                <thead>
-                    <tr>
-                        <th data-name="name">Name</th>
-                        <th data-name="position">Position</th>
-                        <th data-name="office">Office</th>
-                        <th data-name="age">Age</th>
-                        <th data-name="startDate">Start date</th>
-                        <th data-name="salary">Salary</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr>
-                        <td>Tiger Nixon</td>
-                        <td>System Architect</td>
-                        <td>Edinburgh</td>
-                        <td>61</td>
-                        <td>2011/04/25</td>
-                        <td>$320,800</td>
-                    </tr>
-                    <tr>
-                        <td>Garrett Winters</td>
-                        <td>Accountant</td>
-                        <td>Tokyo</td>
-                        <td>63</td>
-                        <td>2011/07/25</td>
-                        <td>$170,750</td>
-                    </tr>
-                    <tr>
-                        <td>Ashton Cox</td>
-                        <td>Junior Technical Author</td>
-                        <td>San Francisco</td>
-                        <td>66</td>
-                        <td>2009/01/12</td>
-                        <td>$86,000</td>
-                    </tr>
-                    <tr>
-                        <td>Bradley Greer</td>
-                        <td>Software Engineer</td>
-                        <td>London</td>
-                        <td>41</td>
-                        <td>2012/10/13</td>
-                        <td>$132,000</td>
-                    </tr>
-                    <tr>
-                        <td>Brenden Wagner</td>
-                        <td>Software Engineer</td>
-                        <td>San Francisco</td>
-                        <td>28</td>
-                        <td>2011/06/07</td>
-                        <td>$206,850</td>
-                    </tr>
-                    <tr>
-                        <td>Fiona Green</td>
-                        <td>Chief Operating Officer</td>
-                        <td>San Francisco</td>
-                        <td>48</td>
-                        <td>2010/03/11</td>
-                        <td>$850,000</td>
-                    </tr>
-                    <tr>
-                        <td>Shou Itou</td>
-                        <td>Regional Marketing</td>
-                        <td>Tokyo</td>
-                        <td>20</td>
-                        <td>2011/08/14</td>
-                        <td>$163,000</td>
-                    </tr>
-                    <tr>
-                        <td>Michelle House</td>
-                        <td>Integration Specialist</td>
-                        <td>Edinburgh</td>
-                        <td>37</td>
-                        <td>2011/06/02</td>
-                        <td>$95,400</td>
-                    </tr>
-                    <tr>
-                        <td>Suki Burks</td>
-                        <td>Developer</td>
-                        <td>London</td>
-                        <td>53</td>
-                        <td>2009/10/22</td>
-                        <td>$114,500</td>
-                    </tr>
-                    <tr>
-                        <td>Prescott Bartlett</td>
-                        <td>Technical Author</td>
-                        <td>London</td>
-                        <td>27</td>
-                        <td>2011/05/07</td>
-                        <td>$145,000</td>
-                    </tr>
-                    <tr>
-                        <td>Gavin Cortez</td>
-                        <td>Team Leader</td>
-                        <td>San Francisco</td>
-                        <td>22</td>
-                        <td>2008/10/26</td>
-                        <td>$235,500</td>
-                    </tr>
-                    <tr>
-                        <td>Martena Mccray</td>
-                        <td>Post-Sales Support</td>
-                        <td>Edinburgh</td>
-                        <td>46</td>
-                        <td>2011/03/09</td>
-                        <td>$324,050</td>
-                    </tr>
-                    <tr>
-                        <td>Unity Butler</td>
-                        <td>Marketing Designer</td>
-                        <td>San Francisco</td>
-                        <td>47</td>
-                        <td>2009/12/09</td>
-                        <td>$85,675</td>
-                    </tr>
-                    <tr>
-                        <td>Howard Hatfield</td>
-                        <td>Office Manager</td>
-                        <td>San Francisco</td>
-                        <td>51</td>
-                        <td>2008/12/16</td>
-                        <td>$164,500</td>
-                    </tr>
-                    <tr>
-                        <td>Hope Fuentes</td>
-                        <td>Secretary</td>
-                        <td>San Francisco</td>
-                        <td>41</td>
-                        <td>2010/02/12</td>
-                        <td>$109,850</td>
-                    </tr>
-                    <tr>
-                        <td>Vivian Harrell</td>
-                        <td>Financial Controller</td>
-                        <td>San Francisco</td>
-                        <td>62</td>
-                        <td>2009/02/14</td>
-                        <td>$452,500</td>
-                    </tr>
-                    <tr>
-                        <td>Timothy Mooney</td>
-                        <td>Office Manager</td>
-                        <td>London</td>
-                        <td>37</td>
-                        <td>2008/12/11</td>
-                        <td>$136,200</td>
-                    </tr>
-                    <tr>
-                        <td>Jackson Bradshaw</td>
-                        <td>Director</td>
-                        <td>New York</td>
-                        <td>65</td>
-                        <td>2008/09/26</td>
-                        <td>$645,750</td>
-                    </tr>
-                    <tr>
-                        <td>Olivia Liang</td>
-                        <td>Support Engineer</td>
-                        <td>Singapore</td>
-                        <td>64</td>
-                        <td>2011/02/03</td>
-                        <td>$234,500</td>
-                    </tr>
-                    <tr>
-                        <td>Bruno Nash</td>
-                        <td>Software Engineer</td>
-                        <td>London</td>
-                        <td>38</td>
-                        <td>2011/05/03</td>
-                        <td>$163,500</td>
-                    </tr>
-                    <tr>
-                        <td>Sakura Yamamoto</td>
-                        <td>Support Engineer</td>
-                        <td>Tokyo</td>
-                        <td>37</td>
-                        <td>2009/08/19</td>
-                        <td>$139,575</td>
-                    </tr>
-                    <tr>
-                        <td>Thor Walton</td>
-                        <td>Developer</td>
-                        <td>New York</td>
-                        <td>61</td>
-                        <td>2013/08/11</td>
-                        <td>$98,540</td>
-                    </tr>
-                    <tr>
-                        <td>Finn Camacho</td>
-                        <td>Support Engineer</td>
-                        <td>San Francisco</td>
-                        <td>47</td>
-                        <td>2009/07/07</td>
-                        <td>$87,500</td>
-                    </tr>
-                    <tr>
-                        <td>Serge Baldwin</td>
-                        <td>Data Coordinator</td>
-                        <td>Singapore</td>
-                        <td>64</td>
-                        <td>2012/04/09</td>
-                        <td>$138,575</td>
-                    </tr>
-                </tbody>
-            </table>
+                <table id="example" class="display" style="width: 100%">
+                    <thead>
+                        <tr>
+                            <th data-name="name">Name</th>
+                            <th data-name="position">Position</th>
+                            <th data-name="office">Office</th>
+                            <th data-name="age">Age</th>
+                            <th data-name="startDate">Start date</th>
+                            <th data-name="salary">Salary</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Tiger Nixon</td>
+                            <td>System Architect</td>
+                            <td>Edinburgh</td>
+                            <td>61</td>
+                            <td>2011/04/25</td>
+                            <td>$320,800</td>
+                        </tr>
+                        <tr>
+                            <td>Garrett Winters</td>
+                            <td>Accountant</td>
+                            <td>Tokyo</td>
+                            <td>63</td>
+                            <td>2011/07/25</td>
+                            <td>$170,750</td>
+                        </tr>
+                        <tr>
+                            <td>Ashton Cox</td>
+                            <td>Junior Technical Author</td>
+                            <td>San Francisco</td>
+                            <td>66</td>
+                            <td>2009/01/12</td>
+                            <td>$86,000</td>
+                        </tr>
+                        <tr>
+                            <td>Bradley Greer</td>
+                            <td>Software Engineer</td>
+                            <td>London</td>
+                            <td>41</td>
+                            <td>2012/10/13</td>
+                            <td>$132,000</td>
+                        </tr>
+                        <tr>
+                            <td>Brenden Wagner</td>
+                            <td>Software Engineer</td>
+                            <td>San Francisco</td>
+                            <td>28</td>
+                            <td>2011/06/07</td>
+                            <td>$206,850</td>
+                        </tr>
+                        <tr>
+                            <td>Fiona Green</td>
+                            <td>Chief Operating Officer</td>
+                            <td>San Francisco</td>
+                            <td>48</td>
+                            <td>2010/03/11</td>
+                            <td>$850,000</td>
+                        </tr>
+                        <tr>
+                            <td>Shou Itou</td>
+                            <td>Regional Marketing</td>
+                            <td>Tokyo</td>
+                            <td>20</td>
+                            <td>2011/08/14</td>
+                            <td>$163,000</td>
+                        </tr>
+                        <tr>
+                            <td>Michelle House</td>
+                            <td>Integration Specialist</td>
+                            <td>Edinburgh</td>
+                            <td>37</td>
+                            <td>2011/06/02</td>
+                            <td>$95,400</td>
+                        </tr>
+                        <tr>
+                            <td>Suki Burks</td>
+                            <td>Developer</td>
+                            <td>London</td>
+                            <td>53</td>
+                            <td>2009/10/22</td>
+                            <td>$114,500</td>
+                        </tr>
+                        <tr>
+                            <td>Prescott Bartlett</td>
+                            <td>Technical Author</td>
+                            <td>London</td>
+                            <td>27</td>
+                            <td>2011/05/07</td>
+                            <td>$145,000</td>
+                        </tr>
+                        <tr>
+                            <td>Gavin Cortez</td>
+                            <td>Team Leader</td>
+                            <td>San Francisco</td>
+                            <td>22</td>
+                            <td>2008/10/26</td>
+                            <td>$235,500</td>
+                        </tr>
+                        <tr>
+                            <td>Martena Mccray</td>
+                            <td>Post-Sales Support</td>
+                            <td>Edinburgh</td>
+                            <td>46</td>
+                            <td>2011/03/09</td>
+                            <td>$324,050</td>
+                        </tr>
+                        <tr>
+                            <td>Unity Butler</td>
+                            <td>Marketing Designer</td>
+                            <td>San Francisco</td>
+                            <td>47</td>
+                            <td>2009/12/09</td>
+                            <td>$85,675</td>
+                        </tr>
+                        <tr>
+                            <td>Howard Hatfield</td>
+                            <td>Office Manager</td>
+                            <td>San Francisco</td>
+                            <td>51</td>
+                            <td>2008/12/16</td>
+                            <td>$164,500</td>
+                        </tr>
+                        <tr>
+                            <td>Hope Fuentes</td>
+                            <td>Secretary</td>
+                            <td>San Francisco</td>
+                            <td>41</td>
+                            <td>2010/02/12</td>
+                            <td>$109,850</td>
+                        </tr>
+                        <tr>
+                            <td>Vivian Harrell</td>
+                            <td>Financial Controller</td>
+                            <td>San Francisco</td>
+                            <td>62</td>
+                            <td>2009/02/14</td>
+                            <td>$452,500</td>
+                        </tr>
+                        <tr>
+                            <td>Timothy Mooney</td>
+                            <td>Office Manager</td>
+                            <td>London</td>
+                            <td>37</td>
+                            <td>2008/12/11</td>
+                            <td>$136,200</td>
+                        </tr>
+                        <tr>
+                            <td>Jackson Bradshaw</td>
+                            <td>Director</td>
+                            <td>New York</td>
+                            <td>65</td>
+                            <td>2008/09/26</td>
+                            <td>$645,750</td>
+                        </tr>
+                        <tr>
+                            <td>Olivia Liang</td>
+                            <td>Support Engineer</td>
+                            <td>Singapore</td>
+                            <td>64</td>
+                            <td>2011/02/03</td>
+                            <td>$234,500</td>
+                        </tr>
+                        <tr>
+                            <td>Bruno Nash</td>
+                            <td>Software Engineer</td>
+                            <td>London</td>
+                            <td>38</td>
+                            <td>2011/05/03</td>
+                            <td>$163,500</td>
+                        </tr>
+                        <tr>
+                            <td>Sakura Yamamoto</td>
+                            <td>Support Engineer</td>
+                            <td>Tokyo</td>
+                            <td>37</td>
+                            <td>2009/08/19</td>
+                            <td>$139,575</td>
+                        </tr>
+                        <tr>
+                            <td>Thor Walton</td>
+                            <td>Developer</td>
+                            <td>New York</td>
+                            <td>61</td>
+                            <td>2013/08/11</td>
+                            <td>$98,540</td>
+                        </tr>
+                        <tr>
+                            <td>Finn Camacho</td>
+                            <td>Support Engineer</td>
+                            <td>San Francisco</td>
+                            <td>47</td>
+                            <td>2009/07/07</td>
+                            <td>$87,500</td>
+                        </tr>
+                        <tr>
+                            <td>Serge Baldwin</td>
+                            <td>Data Coordinator</td>
+                            <td>Singapore</td>
+                            <td>64</td>
+                            <td>2012/04/09</td>
+                            <td>$138,575</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- jQuery -->
@@ -337,7 +408,7 @@
                         {
                             // This is our new plugin configuration
                             extend: 'charts',
-                            text: 'Show Charts', // Custom button text
+                            text: '📊 Show Charts', // Custom button text with icon
                             charts: [
                                 // --- Chart Definition 1: Bar Chart ---
                                 {

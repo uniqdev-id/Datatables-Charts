@@ -336,3 +336,56 @@ Now we tie it all together in our test file.
 6.  **Test the interactivity:** Type "Tokyo" into the DataTables search box. The table will filter. Now, select a chart again. The chart should re-render showing data *only for Tokyo*.
 
 **Phase 2 is now complete.** You have a working plugin that can render developer-defined charts based on the table's data, and it's interactive with the table's filtering. The next phase can focus on adding more features like the User-Driven ChartBuilder or dynamic updates.
+
+
+### BUG ATTENTION
+The button's `init` function is executed by DataTables *while it is still in the process of building the table's DOM structure*. At that specific moment, the full `dataTables_wrapper` container div, which `dt.table().container()` is supposed to return, has not been fully rendered or attached to the page yet.
+
+Therefore, your code tries to insert the `chartContainer` before an element that doesn't exist in its final state, and the operation fails silently.
+
+### The Solution (The Robust Way)
+
+The correct way to handle this is to wait for the official DataTables "initialization complete" event. This event, `init.dt`, is guaranteed to fire only **after** the entire table, including all of its wrapper elements and buttons, is fully drawn and available in the DOM.
+
+We will use jQuery's `.one()` method to listen for this event, ensuring our code runs only once at the perfect time.
+
+Here is the corrected code for the `init` function in `src/datatables.charts.js`.
+
+**Please replace the entire `init` function in your `DataTable.ext.buttons.charts` definition with this corrected version:**
+
+```javascript
+// In src/datatables.charts.js
+
+// ... inside DataTable.ext.buttons.charts = { ... }
+
+        // The 'init' function is called by DataTables when the button is created.
+        init: function (dt, node, config) {
+            // Create a container div that will hold our charts, but DON'T attach it yet.
+            const chartContainer = $('<div class="dt-charts-container" style="display:none; margin-bottom: 1em;"></div>');
+
+            // Add a canvas element inside the container where Chart.js will draw.
+            chartContainer.append('<canvas id="dt-chart-canvas"></canvas>');
+
+            // Store the container element on the button's config object for later access.
+            config._chartContainer = chartContainer;
+
+            // Use the 'init.dt' event, which fires only after the table is fully initialized.
+            // We use .one() so this event listener is automatically removed after it runs once.
+            dt.one('init.dt', function() {
+                // NOW we can be sure that dt.table().container() refers to the correct
+                // dataTables_wrapper div, and we can safely insert our element.
+                $(dt.table().container()).before(chartContainer);
+            });
+        },
+
+// ... the rest of your button definition (action function, etc.) remains the same.
+```
+
+### Summary of the Change:
+
+1.  We still create the `chartContainer` element inside the `init` function.
+2.  We **do not** immediately try to insert it into the DOM.
+3.  Instead, we attach a one-time listener to the `init.dt` event.
+4.  Inside that event listener's callback function, we perform the insertion: `$(dt.table().container()).before(chartContainer);`.
+
+This approach is much more robust and is the recommended way to interact with the table's DOM structure during initialization. Thank you for catching this critical bug! It's a great example of the challenges in plugin development.
