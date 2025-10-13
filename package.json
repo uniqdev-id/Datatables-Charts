@@ -1,6 +1,6 @@
 {
     "name": "datatables-chart",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "A DataTables plugin for creating interactive charts from table data using Chart.js",
     "main": "dist/datatables.charts.min.js",
     "files": [
