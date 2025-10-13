@@ -68,15 +68,59 @@
         });
     }
 
+    // Test the HTML cleaning function
+    function testHtmlCleaning() {
+        console.log('🧪 Testing HTML cleaning:');
+        const testCases = [
+            '<span data-sort="123">Product A</span>',
+            '<a href="/link">Link Text</a>',
+            '<div class="badge">Status: Active</div>',
+            '<strong>Bold Text</strong>',
+            'Plain text',
+            '<span title="tooltip">Hover me</span>',
+            '<img src="icon.png" alt="Icon" /> Image Label',
+            '',
+            null,
+            undefined,
+        ];
+
+        testCases.forEach((test) => {
+            const result = cleanHtmlFromText(test);
+            console.log(`  "${test}" → "${result}"`);
+        });
+    }
+
+    /**
+     * Cleans HTML content from text by removing tags and extracting clean text
+     * @param {string} htmlString - The string that may contain HTML
+     * @returns {string} Clean text without HTML tags
+     */
+    function cleanHtmlFromText(htmlString) {
+        if (!htmlString || typeof htmlString !== 'string') {
+            return String(htmlString || '');
+        }
+
+        // Create a temporary div to parse HTML
+        if (typeof document !== 'undefined') {
+            const tempDiv = document.createElement('div');
+            tempDiv.innerHTML = htmlString;
+            return tempDiv.textContent || tempDiv.innerText || '';
+        } else {
+            // Fallback for environments without DOM
+            return htmlString.replace(/<[^>]*>/g, '').trim();
+        }
+    }
+
     function aggregateData(dt, chartDef) {
         console.log('📊 aggregateData called with chartDef:', chartDef);
 
-        // Run currency parsing tests in development
+        // Run tests in development
         if (
             typeof window !== 'undefined' &&
             window.location.hostname === 'localhost'
         ) {
             testCurrencyParsing();
+            testHtmlCleaning();
         }
 
         const labelColumnIndex = chartDef.data.labelColumn;
@@ -97,7 +141,8 @@
         let processedRows = 0;
         filteredRows.every(function (rowIndex) {
             const rowData = this.data(); // Get the row data array
-            const label = rowData[labelColumnIndex];
+            const rawLabel = rowData[labelColumnIndex];
+            const label = cleanHtmlFromText(rawLabel);
             const value =
                 valueColumnIndex !== undefined
                     ? parseNumericValue(rowData[valueColumnIndex])
@@ -107,7 +152,7 @@
             if (processedRows <= 3) {
                 // Log first 3 rows for debugging
                 console.log(
-                    `📋 Row ${processedRows}: label="${label}", rawValue="${rowData[valueColumnIndex]}", parsedValue=${value}`,
+                    `📋 Row ${processedRows}: rawLabel="${rawLabel}", cleanLabel="${label}", rawValue="${rowData[valueColumnIndex]}", parsedValue=${value}`,
                 );
             }
 
