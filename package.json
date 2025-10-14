@@ -36,13 +36,13 @@
     ],
     "author": "UNIQ DEV ID",
     "license": "MIT",
-    "homepage": "https://github.com/annasblackhat/datatables-chart#readme",
+    "homepage": "https://github.com/uniqdev-id/Datatables-Charts#readme",
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/annasblackhat/datatables-chart.git"
+        "url": "git+https://github.com/uniqdev-id/Datatables-Charts.git"
     },
     "bugs": {
-        "url": "https://github.com/annasblackhat/datatables-chart/issues"
+        "url": "https://github.com/uniqdev-id/Datatables-Charts/issues"
     },
     "publishConfig": {
         "access": "public",
