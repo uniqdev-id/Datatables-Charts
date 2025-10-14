@@ -87,8 +87,8 @@
                         console.log('🖱️ Chart item click coordinates:', e.offsetX, e.offsetY);
 
                         //check if datatable has data
-                        if (dt.data.length === 0) {
-                            alert('No data available to display chart.');
+                        if (dt.data().length === 0) {
+                            alert('Klik tombol "Apply" untuk menampilkan data terlebih dahulu!');
                             return;
                         }
 
@@ -239,13 +239,24 @@
             config._dropdownOpen = true;
 
             // Close dropdown when clicking outside
-            $(document).on('click.dt-charts', function (event) {
-                if (
-                    !$dropdown.is(event.target) &&
-                    $dropdown.has(event.target).length === 0 &&
-                    !$button.is(event.target) &&
-                    !$button.has(event.target).length === 0
-                ) {
+            // Use event delegation to handle clicks immediately
+            $(document).off('click.dt-charts').on('click.dt-charts', function (event) {
+                // Check if dropdown still exists
+                if (!config._dropdownMenu || !config._dropdownOpen) {
+                    return;
+                }
+
+                const target = event.target;
+                const isDropdownClick = $dropdown[0] === target || $dropdown[0].contains(target);
+                const isButtonClick = $button[0] === target || $button[0].contains(target);
+
+                console.log('🖱️ Click detected:', {
+                    target: target.tagName + (target.className ? '.' + target.className : ''),
+                    isDropdownClick: isDropdownClick,
+                    isButtonClick: isButtonClick
+                });
+
+                if (!isDropdownClick && !isButtonClick) {
                     console.log('🖱️ Clicking outside dropdown, closing...');
                     $dropdown.remove();
                     config._dropdownMenu = null;
