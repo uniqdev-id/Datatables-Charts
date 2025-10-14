@@ -13,8 +13,8 @@
     "scripts": {
         "lint": "npm run build:dev && eslint dist/datatables.charts.js",
         "lint:fix": "npm run build:dev && eslint dist/datatables.charts.js --fix",
-        "build": "concat -o dist/datatables.charts.js src/js/*.js && terser dist/datatables.charts.js -c -m -o dist/datatables.charts.min.js",
-        "build:dev": "concat -o dist/datatables.charts.js src/js/*.js",
+        "build": "mkdir -p dist && concat -o dist/datatables.charts.js src/js/*.js && terser dist/datatables.charts.js -c -m -o dist/datatables.charts.min.js",
+        "build:dev": "mkdir -p dist && concat -o dist/datatables.charts.js src/js/*.js",
         "dev": "live-server --open=./examples/",
         "format": "prettier --write \"src/**/*.{js,css}\" \"examples/**/*.{html,js,css}\"",
         "format:check": "prettier --check \"src/**/*.{js,css}\" \"examples/**/*.{html,js,css}\"",
