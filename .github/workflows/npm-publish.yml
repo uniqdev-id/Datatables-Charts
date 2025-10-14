@@ -1,0 +1,194 @@
+name: NPM Publish
+
+on:
+    release:
+        types: [published]
+    workflow_dispatch:
+        inputs:
+            version:
+                description: 'Version to publish (e.g., 1.0.1)'
+                required: true
+                type: string
+            tag:
+                description: 'NPM tag (latest, beta, alpha)'
+                required: false
+                default: 'latest'
+                type: choice
+                options:
+                    - latest
+                    - beta
+                    - alpha
+                    - next
+
+jobs:
+    publish:
+        runs-on: ubuntu-latest
+
+        permissions:
+            contents: read
+            packages: write
+            id-token: write
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v4
+              with:
+                  fetch-depth: 0
+
+            - name: Setup Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: '18'
+                  cache: 'npm'
+                  registry-url: 'https://registry.npmjs.org'
+
+            - name: Install dependencies
+              run: npm ci
+
+            - name: Determine version and tag
+              id: version
+              run: |
+                  if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+                    VERSION="${{ github.event.inputs.version }}"
+                    NPM_TAG="${{ github.event.inputs.tag }}"
+                  else
+                    # Extract version from release tag
+                    VERSION="${{ github.event.release.tag_name }}"
+                    VERSION=${VERSION#v}  # Remove 'v' prefix if present
+
+                    # Determine NPM tag based on version
+                    if [[ $VERSION == *"alpha"* ]]; then
+                      NPM_TAG="alpha"
+                    elif [[ $VERSION == *"beta"* ]]; then
+                      NPM_TAG="beta"
+                    elif [[ $VERSION == *"rc"* ]]; then
+                      NPM_TAG="next"
+                    else
+                      NPM_TAG="latest"
+                    fi
+                  fi
+
+                  echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+                  echo "NPM_TAG=$NPM_TAG" >> $GITHUB_OUTPUT
+                  echo "Publishing version: $VERSION with tag: $NPM_TAG"
+
+            - name: Update package.json version
+              run: |
+                  VERSION=${{ steps.version.outputs.VERSION }}
+                  npm version $VERSION --no-git-tag-version --allow-same-version
+                  echo "Updated package.json to version $VERSION"
+
+            - name: Run pre-publish checks
+              run: |
+                  echo "Running pre-publish checks..."
+                  npm run lint
+                  npm run build
+
+                  # Verify required files exist
+                  test -f dist/datatables.charts.min.js || (echo "Missing minified JS file" && exit 1)
+                  test -f dist/datatables.charts.js || (echo "Missing JS file" && exit 1)
+                  test -f src/datatables.charts.css || (echo "Missing CSS file" && exit 1)
+
+                  echo "✅ Pre-publish checks passed"
+
+            - name: Test package creation
+              run: |
+                  echo "Testing package creation..."
+                  npm pack --dry-run
+                  echo "✅ Package creation test passed"
+
+            - name: Check if version already exists
+              run: |
+                  VERSION=${{ steps.version.outputs.VERSION }}
+                  if npm view datatables-chart@$VERSION version 2>/dev/null; then
+                    echo "❌ Version $VERSION already exists on NPM"
+                    echo "Please use a different version number"
+                    exit 1
+                  else
+                    echo "✅ Version $VERSION is available for publishing"
+                  fi
+
+            - name: Publish to NPM
+              run: |
+                  VERSION=${{ steps.version.outputs.VERSION }}
+                  NPM_TAG=${{ steps.version.outputs.NPM_TAG }}
+
+                  echo "Publishing datatables-chart@$VERSION with tag $NPM_TAG..."
+
+                  if [ "$NPM_TAG" = "latest" ]; then
+                    npm publish --access public
+                  else
+                    npm publish --access public --tag $NPM_TAG
+                  fi
+
+                  echo "✅ Successfully published to NPM"
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            - name: Verify publication
+              run: |
+                  VERSION=${{ steps.version.outputs.VERSION }}
+                  echo "Verifying publication..."
+                  sleep 10  # Wait for NPM registry to update
+
+                  # Check if the package is available
+                  if npm view datatables-chart@$VERSION version; then
+                    echo "✅ Package successfully published and available"
+                  else
+                    echo "❌ Package verification failed"
+                    exit 1
+                  fi
+
+            - name: Update package metadata
+              run: |
+                  VERSION=${{ steps.version.outputs.VERSION }}
+                  NPM_TAG=${{ steps.version.outputs.NPM_TAG }}
+
+                  # Add additional tags if needed
+                  if [ "$NPM_TAG" = "latest" ]; then
+                    echo "Adding 'stable' tag for latest release..."
+                    npm dist-tag add datatables-chart@$VERSION stable || true
+                  fi
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+            - name: Create success summary
+              run: |
+                  VERSION=${{ steps.version.outputs.VERSION }}
+                  NPM_TAG=${{ steps.version.outputs.NPM_TAG }}
+
+                  echo "## 📦 NPM Publication Summary" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "✅ **Successfully published datatables-chart@$VERSION**" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "### Installation" >> $GITHUB_STEP_SUMMARY
+                  echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+                  if [ "$NPM_TAG" = "latest" ]; then
+                    echo "npm install datatables-chart" >> $GITHUB_STEP_SUMMARY
+                  else
+                    echo "npm install datatables-chart@$NPM_TAG" >> $GITHUB_STEP_SUMMARY
+                  fi
+                  echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "### CDN Links" >> $GITHUB_STEP_SUMMARY
+                  echo "- JS: \`https://cdn.jsdelivr.net/npm/datatables-chart@$VERSION/dist/datatables.charts.min.js\`" >> $GITHUB_STEP_SUMMARY
+                  echo "- CSS: \`https://cdn.jsdelivr.net/npm/datatables-chart@$VERSION/src/datatables.charts.css\`" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "### Package Information" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Version:** $VERSION" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Tag:** $NPM_TAG" >> $GITHUB_STEP_SUMMARY
+                  echo "- **Registry:** https://www.npmjs.com/package/datatables-chart" >> $GITHUB_STEP_SUMMARY
+                  echo "- **CDN:** https://cdn.jsdelivr.net/npm/datatables-chart@$VERSION/" >> $GITHUB_STEP_SUMMARY
+
+            - name: Notify on failure
+              if: failure()
+              run: |
+                  echo "## ❌ NPM Publication Failed" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "The NPM publication process failed. Please check the logs above for details." >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "### Common Issues:" >> $GITHUB_STEP_SUMMARY
+                  echo "- Version already exists on NPM" >> $GITHUB_STEP_SUMMARY
+                  echo "- NPM_TOKEN secret not configured" >> $GITHUB_STEP_SUMMARY
+                  echo "- Build or lint errors" >> $GITHUB_STEP_SUMMARY
+                  echo "- Network connectivity issues" >> $GITHUB_STEP_SUMMARY

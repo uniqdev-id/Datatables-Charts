@@ -18,6 +18,7 @@ jobs:
         permissions:
             contents: write
             packages: write
+            id-token: write
 
         steps:
             - name: Checkout code
@@ -30,6 +31,7 @@ jobs:
               with:
                   node-version: '18'
                   cache: 'npm'
+                  registry-url: 'https://registry.npmjs.org'
 
             - name: Install dependencies
               run: npm ci
@@ -65,6 +67,13 @@ jobs:
                   VERSION_NUMBER=${VERSION#v}
                   npm version $VERSION_NUMBER --no-git-tag-version --allow-same-version
 
+            - name: Publish to NPM
+              run: |
+                  echo "Publishing to NPM..."
+                  npm publish --access public
+              env:
+                  NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
             - name: Create release archive
               run: |
                   mkdir -p release-assets
@@ -99,19 +108,38 @@ jobs:
                   ### Features & Improvements
                   $COMMITS
 
-                  ### Files Included
+                  ### Installation
+
+                  #### Via NPM
+                  \`\`\`bash
+                  npm install datatables-chart
+                  \`\`\`
+
+                  #### Via CDN
+                  \`\`\`html
+                  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables-chart@${{ steps.version.outputs.VERSION }}/src/datatables.charts.css">
+                  <script src="https://cdn.jsdelivr.net/npm/datatables-chart@${{ steps.version.outputs.VERSION }}/dist/datatables.charts.min.js"></script>
+                  \`\`\`
+
+                  #### Manual Download
                   - **datatables-chart-dist.zip**: Minified production files ready to use
                   - **datatables-chart-src.zip**: Source files and examples for development
                   - **datatables-chart-complete.zip**: Complete package with all files
 
-                  ### Installation
-                  1. Download the appropriate zip file
-                  2. Extract to your project directory
-                  3. Include the CSS and JS files in your HTML:
-                     \`\`\`html
-                     <link rel="stylesheet" href="path/to/datatables.charts.css">
-                     <script src="path/to/datatables.charts.min.js"></script>
-                     \`\`\`
+                  ### Usage
+                  \`\`\`html
+                  <link rel="stylesheet" href="path/to/datatables.charts.css">
+                  <script src="path/to/datatables.charts.min.js"></script>
+                  \`\`\`
+
+                  \`\`\`javascript
+                  \$('#myTable').DataTable({
+                      // DataTable options
+                  }).charts({
+                      type: 'bar',
+                      columns: [0, 1, 2]
+                  });
+                  \`\`\`
 
                   ### Quick Start
                   See the examples folder for usage demonstrations.
@@ -143,6 +171,12 @@ jobs:
               run: |
                   echo "## Release Summary" >> $GITHUB_STEP_SUMMARY
                   echo "✅ Successfully created release ${{ steps.version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+                  echo "✅ Published to NPM registry" >> $GITHUB_STEP_SUMMARY
+                  echo "" >> $GITHUB_STEP_SUMMARY
+                  echo "### Package Available:" >> $GITHUB_STEP_SUMMARY
+                  echo "- 📦 NPM: \`npm install datatables-chart@${{ steps.version.outputs.VERSION }}\`" >> $GITHUB_STEP_SUMMARY
+                  echo "- 🌐 CDN: \`https://cdn.jsdelivr.net/npm/datatables-chart@${{ steps.version.outputs.VERSION }}/\`" >> $GITHUB_STEP_SUMMARY
+                  echo "- 📥 GitHub Releases: Manual download archives" >> $GITHUB_STEP_SUMMARY
                   echo "" >> $GITHUB_STEP_SUMMARY
                   echo "### Released Assets:" >> $GITHUB_STEP_SUMMARY
                   echo "- datatables-chart-dist.zip (Production files)" >> $GITHUB_STEP_SUMMARY
@@ -151,6 +185,7 @@ jobs:
                   echo "- Individual JS/CSS files" >> $GITHUB_STEP_SUMMARY
                   echo "" >> $GITHUB_STEP_SUMMARY
                   echo "### Next Steps:" >> $GITHUB_STEP_SUMMARY
-                  echo "- Release is now available on GitHub" >> $GITHUB_STEP_SUMMARY
-                  echo "- Users can download and install the plugin" >> $GITHUB_STEP_SUMMARY
-                  echo "- Check the release page for installation instructions" >> $GITHUB_STEP_SUMMARY
+                  echo "- Package is now available on NPM" >> $GITHUB_STEP_SUMMARY
+                  echo "- Release is available on GitHub" >> $GITHUB_STEP_SUMMARY
+                  echo "- CDN links are active via jsDelivr" >> $GITHUB_STEP_SUMMARY
+                  echo "- Update documentation with new installation methods" >> $GITHUB_STEP_SUMMARY

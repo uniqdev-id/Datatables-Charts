@@ -36,13 +36,17 @@
     ],
     "author": "UNIQ DEV ID",
     "license": "MIT",
-    "homepage": "https://github.com/yourusername/datatables-chart#readme",
+    "homepage": "https://github.com/annasblackhat/datatables-chart#readme",
     "repository": {
         "type": "git",
-        "url": "https://github.com/yourusername/datatables-chart.git"
+        "url": "git+https://github.com/annasblackhat/datatables-chart.git"
     },
     "bugs": {
-        "url": "https://github.com/yourusername/datatables-chart/issues"
+        "url": "https://github.com/annasblackhat/datatables-chart/issues"
+    },
+    "publishConfig": {
+        "access": "public",
+        "registry": "https://registry.npmjs.org/"
     },
     "peerDependencies": {
         "chart.js": ">=3.0.0",
