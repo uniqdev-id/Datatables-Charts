@@ -275,6 +275,7 @@
     font-size: 10px;
     opacity: 0.8;
     transition: transform 0.3s ease;
+    pointer-events: none; /* Prevent pseudo-element from blocking clicks */
 }
 
 .dt-button.buttons-charts:hover::after {

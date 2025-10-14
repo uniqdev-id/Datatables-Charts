@@ -399,13 +399,37 @@
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
         <!-- Our Plugin's JS (linking to the source file for development) -->
-        <script src="../src/datatables.charts.js"></script>
+        <script src="../dist/datatables.charts.js"></script>
 
         <script>
             $(document).ready(function () {
                 $('#example').DataTable({
                     // The 'B' in dom is for Buttons
                     dom: 'Bfrtip',
+                    // columns: [
+                    //     {
+                    //         data: 'Name',
+                    //         name: 'Name',
+                    //         title: 'Name',
+                    //     },
+                    //     {
+                    //         data: 'Position',
+                    //         name: 'Position',
+                    //         title: 'Position',
+                    //     },
+                    //     { data: 'Office', name: 'Office', title: 'Office' },
+                    //     { data: 'Age', name: 'Age', title: 'Age' },
+                    //     {
+                    //         data: 'Start date',
+                    //         name: 'Start date',
+                    //         title: 'Start date',
+                    //     },
+                    //     {
+                    //         data: 'Salary',
+                    //         name: 'Salary',
+                    //         title: 'Salary',
+                    //     },
+                    // ],
                     buttons: [
                         'copy',
                         // 'csv',
@@ -419,8 +443,8 @@
                                     type: 'bar',
                                     title: 'Average Salary by Office',
                                     data: {
-                                        labelColumn: 2, // Office column (0-indexed)
-                                        valueColumn: 5, // Salary column (0-indexed)
+                                        labelColumn: 'Office', //2, // Office column (0-indexed)
+                                        valueColumn: 'Salary', //5, // Salary column (0-indexed)
                                         aggregate: 'avg',
                                     },
                                 },

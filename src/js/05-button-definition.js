@@ -58,6 +58,11 @@
         },
 
         action: function (e, dt, node, config) {
+            console.log('🖱️ Button clicked - event:', e);
+            console.log('🖱️ Click coordinates:', e.offsetX, e.offsetY);
+            console.log('🖱️ Button dimensions:', node.offsetWidth, node.offsetHeight);
+
+
             const $button = $(node);
             const charts = config.charts || [];
 
@@ -77,8 +82,15 @@
                     '<button type="button" class="dt-button"></button>',
                 )
                     .text(chartDef.title)
-                    .on('click', function () {
+                    .on('click', function (e) {
                         console.log('🖱️ Chart button clicked:', chartDef.title);
+                        console.log('🖱️ Chart item click coordinates:', e.offsetX, e.offsetY);
+
+                        //check if datatable has data
+                        if (dt.data.length === 0) {
+                            alert('No data available to display chart.');
+                            return;
+                        }
 
                         // Hide dropdown
                         $dropdown.remove();
@@ -231,8 +243,10 @@
                 if (
                     !$dropdown.is(event.target) &&
                     $dropdown.has(event.target).length === 0 &&
-                    !$button.is(event.target)
+                    !$button.is(event.target) &&
+                    !$button.has(event.target).length === 0
                 ) {
+                    console.log('🖱️ Clicking outside dropdown, closing...');
                     $dropdown.remove();
                     config._dropdownMenu = null;
                     config._dropdownOpen = false;
