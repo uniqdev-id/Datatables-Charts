@@ -1,0 +1,439 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>DataTables Charts - Dropdown Button Variations</title>
+
+        <!-- DataTables CSS -->
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"
+        />
+
+        <!-- DataTables Buttons CSS -->
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css"
+        />
+
+        <!-- Our Plugin's CSS -->
+        <link
+            rel="stylesheet"
+            type="text/css"
+            href="src/datatables.charts.css"
+        />
+
+        <style>
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                    sans-serif;
+                background-color: #f8f9fa;
+                margin: 0;
+                padding: 20px;
+                color: #333;
+            }
+
+            .container {
+                max-width: 1200px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 12px;
+                padding: 30px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            }
+
+            h1 {
+                color: #2c3e50;
+                margin-bottom: 10px;
+                font-weight: 700;
+            }
+
+            .subtitle {
+                color: #7f8c8d;
+                font-size: 16px;
+                margin-bottom: 30px;
+            }
+
+            .demo-section {
+                margin-bottom: 40px;
+                padding: 25px;
+                border: 2px solid #e9ecef;
+                border-radius: 10px;
+                background: #fafbfc;
+            }
+
+            .demo-section h3 {
+                margin-top: 0;
+                color: #495057;
+                font-size: 18px;
+            }
+
+            .demo-section p {
+                color: #6c757d;
+                margin-bottom: 20px;
+                line-height: 1.5;
+            }
+
+            /* Enhanced button variations */
+            .dt-button.charts-dropdown::after {
+                content: '⏷';
+                margin-left: 8px;
+                font-size: 12px;
+                opacity: 0.9;
+                transition: all 0.3s ease;
+                display: inline-block;
+            }
+
+            .dt-button.charts-menu::after {
+                content: '☰';
+                margin-left: 10px;
+                font-size: 12px;
+                opacity: 0.8;
+                transition: all 0.3s ease;
+            }
+
+            .dt-button.charts-selector::after {
+                content: '⋯';
+                margin-left: 8px;
+                font-size: 14px;
+                opacity: 0.8;
+                transition: all 0.3s ease;
+                letter-spacing: 2px;
+            }
+
+            /* Hover effects for different styles */
+            .dt-button.charts-dropdown:hover::after {
+                transform: scale(1.2);
+                opacity: 1;
+            }
+
+            .dt-button.charts-menu:hover::after {
+                transform: rotateY(180deg);
+                opacity: 1;
+            }
+
+            .dt-button.charts-selector:hover::after {
+                transform: translateY(-1px);
+                opacity: 1;
+            }
+
+            /* Active state animations */
+            .dt-button.charts-dropdown.dt-button-active::after {
+                transform: rotate(180deg);
+                opacity: 1;
+            }
+
+            .dt-button.charts-menu.dt-button-active::after {
+                transform: rotate(90deg);
+                opacity: 1;
+            }
+
+            .dt-button.charts-selector.dt-button-active::after {
+                transform: scale(1.3);
+                opacity: 1;
+            }
+
+            /* Custom table styling for demo */
+            table.dataTable {
+                border-collapse: separate;
+                border-spacing: 0;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                margin-bottom: 20px;
+            }
+
+            table.dataTable thead th {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                font-weight: 600;
+                border: none;
+                padding: 12px 10px;
+                font-size: 14px;
+            }
+
+            table.dataTable tbody td {
+                padding: 10px;
+                border-bottom: 1px solid #f1f3f4;
+                font-size: 13px;
+            }
+
+            table.dataTable tbody tr:hover {
+                background-color: #f8f9ff;
+            }
+
+            /* Button container styling */
+            .dt-buttons {
+                margin-bottom: 15px;
+                display: flex;
+                gap: 10px;
+                flex-wrap: wrap;
+            }
+
+            .variation-info {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 15px;
+                border-radius: 8px;
+                margin-bottom: 20px;
+                font-size: 14px;
+            }
+
+            .variation-info strong {
+                display: block;
+                margin-bottom: 5px;
+                font-size: 16px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <h1>📊 DataTables Charts - Dropdown Button Variations</h1>
+            <p class="subtitle">
+                Testing different button styles and text options to make it
+                clear that it's a dropdown menu
+            </p>
+
+            <div class="demo-section">
+                <h3>🎯 Variation 1: Simple Dropdown Arrow</h3>
+                <div class="variation-info">
+                    <strong>Button Text:</strong> "Charts ⏷"<br />
+                    <strong>Style:</strong> Clean dropdown arrow that rotates
+                    when clicked
+                </div>
+                <table id="table1" class="display" style="width: 100%">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Sales</th>
+                            <th>Region</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Laptop Pro</td>
+                            <td>Electronics</td>
+                            <td>$45,000</td>
+                            <td>North America</td>
+                        </tr>
+                        <tr>
+                            <td>Office Chair</td>
+                            <td>Furniture</td>
+                            <td>$15,600</td>
+                            <td>Europe</td>
+                        </tr>
+                        <tr>
+                            <td>Smartphone X</td>
+                            <td>Electronics</td>
+                            <td>$32,500</td>
+                            <td>Asia</td>
+                        </tr>
+                        <tr>
+                            <td>Standing Desk</td>
+                            <td>Furniture</td>
+                            <td>$22,400</td>
+                            <td>North America</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="demo-section">
+                <h3>🎯 Variation 2: Menu Style</h3>
+                <div class="variation-info">
+                    <strong>Button Text:</strong> "Chart Options ☰"<br />
+                    <strong>Style:</strong> Hamburger menu icon that flips when
+                    opened
+                </div>
+                <table id="table2" class="display" style="width: 100%">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Sales</th>
+                            <th>Region</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Monitor 4K</td>
+                            <td>Electronics</td>
+                            <td>$18,700</td>
+                            <td>Asia</td>
+                        </tr>
+                        <tr>
+                            <td>Bookshelf</td>
+                            <td>Furniture</td>
+                            <td>$12,800</td>
+                            <td>Europe</td>
+                        </tr>
+                        <tr>
+                            <td>Tablet Mini</td>
+                            <td>Electronics</td>
+                            <td>$28,900</td>
+                            <td>North America</td>
+                        </tr>
+                        <tr>
+                            <td>Lamp LED</td>
+                            <td>Furniture</td>
+                            <td>$6,900</td>
+                            <td>Asia</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="demo-section">
+                <h3>🎯 Variation 3: More Options Style</h3>
+                <div class="variation-info">
+                    <strong>Button Text:</strong> "Select Chart ⋯"<br />
+                    <strong>Style:</strong> Three dots indicating more options
+                    available
+                </div>
+                <table id="table3" class="display" style="width: 100%">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Sales</th>
+                            <th>Region</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Smart Watch</td>
+                            <td>Electronics</td>
+                            <td>$41,200</td>
+                            <td>North America</td>
+                        </tr>
+                        <tr>
+                            <td>Gaming Console</td>
+                            <td>Electronics</td>
+                            <td>$52,800</td>
+                            <td>Europe</td>
+                        </tr>
+                        <tr>
+                            <td>Wardrobe</td>
+                            <td>Furniture</td>
+                            <td>$28,700</td>
+                            <td>Asia</td>
+                        </tr>
+                        <tr>
+                            <td>Coffee Table</td>
+                            <td>Furniture</td>
+                            <td>$8,900</td>
+                            <td>North America</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+        <!-- DataTables JS -->
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <!-- DataTables Buttons JS -->
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <!-- Our Plugin's JS -->
+        <script src="src/datatables.charts.js"></script>
+
+        <script>
+            $(document).ready(function () {
+                // Common chart definitions
+                const commonCharts = [
+                    {
+                        type: 'bar',
+                        title: 'Total Sales by Region',
+                        data: {
+                            labelColumn: 3, // Region
+                            valueColumn: 2, // Sales
+                            aggregate: 'sum',
+                        },
+                    },
+                    {
+                        type: 'pie',
+                        title: 'Product Distribution by Category',
+                        data: {
+                            labelColumn: 1, // Category
+                            aggregate: 'count',
+                        },
+                    },
+                    {
+                        type: 'doughnut',
+                        title: 'Sales Distribution',
+                        data: {
+                            labelColumn: 1, // Category
+                            valueColumn: 2, // Sales
+                            aggregate: 'sum',
+                        },
+                    },
+                ];
+
+                // Table 1: Simple dropdown arrow
+                $('#table1').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copy',
+                        {
+                            extend: 'charts',
+                            text: '📊 Charts',
+                            className: 'charts-dropdown',
+                            charts: commonCharts,
+                        },
+                    ],
+                    pageLength: 5,
+                    lengthChange: false,
+                    searching: false,
+                    info: false,
+                });
+
+                // Table 2: Menu style
+                $('#table2').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copy',
+                        {
+                            extend: 'charts',
+                            text: '📊 Chart Options',
+                            className: 'charts-menu',
+                            charts: commonCharts,
+                        },
+                    ],
+                    pageLength: 5,
+                    lengthChange: false,
+                    searching: false,
+                    info: false,
+                });
+
+                // Table 3: More options style
+                $('#table3').DataTable({
+                    dom: 'Bfrtip',
+                    buttons: [
+                        'copy',
+                        {
+                            extend: 'charts',
+                            text: '📊 Select Chart',
+                            className: 'charts-selector',
+                            charts: commonCharts,
+                        },
+                    ],
+                    pageLength: 5,
+                    lengthChange: false,
+                    searching: false,
+                    info: false,
+                });
+
+                console.log('✅ Dropdown variations test initialized');
+            });
+        </script>
+    </body>
+</html>

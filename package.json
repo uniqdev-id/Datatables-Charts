@@ -11,10 +11,10 @@
         "RELEASE.md"
     ],
     "scripts": {
-        "lint": "eslint src/**/*.js",
-        "lint:fix": "eslint src/**/*.js --fix",
-        "build": "terser src/datatables.charts.js -c -m -o dist/datatables.charts.min.js",
-        "build:dev": "cp src/datatables.charts.js dist/datatables.charts.js",
+        "lint": "npm run build:dev && eslint dist/datatables.charts.js",
+        "lint:fix": "npm run build:dev && eslint dist/datatables.charts.js --fix",
+        "build": "concat -o dist/datatables.charts.js src/js/*.js && terser dist/datatables.charts.js -c -m -o dist/datatables.charts.min.js",
+        "build:dev": "concat -o dist/datatables.charts.js src/js/*.js",
         "dev": "live-server --open=./examples/",
         "format": "prettier --write \"src/**/*.{js,css}\" \"examples/**/*.{html,js,css}\"",
         "format:check": "prettier --check \"src/**/*.{js,css}\" \"examples/**/*.{html,js,css}\"",
@@ -45,11 +45,12 @@
         "url": "https://github.com/yourusername/datatables-chart/issues"
     },
     "peerDependencies": {
-        "jquery": ">=3.0.0",
+        "chart.js": ">=3.0.0",
         "datatables.net": ">=1.10.0",
-        "chart.js": ">=3.0.0"
+        "jquery": ">=3.0.0"
     },
     "devDependencies": {
+        "concat": "^1.0.3",
         "eslint": "^9.37.0",
         "live-server": "^1.2.2",
         "prettier": "^3.6.2",
