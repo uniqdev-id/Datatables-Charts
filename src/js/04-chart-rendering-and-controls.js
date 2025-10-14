@@ -138,7 +138,7 @@ function renderChart(dt, config, chartDef) {
                         align-items: center;
                         padding: 10px;
                         border-bottom: 1px solid ${themeColors.borderColor};
-                        background: ${themeColors.backgroundColor};
+                        // background: ${themeColors.backgroundColor};
                     ">
                         <h3 style="
                             margin: 0;
@@ -170,7 +170,7 @@ function renderChart(dt, config, chartDef) {
                     </div>
                     <div class="dt-charts-body" style="
                         padding: 20px;
-                        background: ${themeColors.backgroundColor};
+                        // background: ${themeColors.backgroundColor};
                         position: relative;
                         min-height: 400px;
                     ">
