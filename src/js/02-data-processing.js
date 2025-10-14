@@ -117,12 +117,31 @@ function aggregateData(dt, chartDef) {
     // Add color schemes based on chart type
     const colors = generateColors(labels.length, chartDef.type);
 
+    //// Sort Data Descending, and take to 20 only
+    // 1. Combine the arrays into an array of objects
+    const combined = labels.map((label, index) => {
+        return {
+            label: label,
+            data: aggregatedValues[index],
+        };
+    });
+
+    // 2. Sort the combined array in descending order based on the 'data' property
+    combined.sort((a, b) => {
+        return b.data - a.data; // For descending order
+        // For ascending order, you would use: a.data - b.data
+    });
+
+    // 3. Separate the sorted array back into two arrays
+    const sortedLabels = combined.map((item) => item.label).slice(0, 20);
+    const sortedData = combined.map((item) => item.data).slice(0, 20);
+
     return {
-        labels: labels,
+        labels: sortedLabels,
         datasets: [
             {
                 label: chartDef.title,
-                data: aggregatedValues,
+                data: sortedData,
                 backgroundColor: colors.background,
                 borderColor: colors.border,
                 borderWidth: 1,
