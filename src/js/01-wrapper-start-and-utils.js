@@ -14,7 +14,7 @@
         const str = String(value).trim();
 
         // Remove currency codes (like IDR, USD, EUR)
-        let cleaned = str.replace(/[A-Z]{3}/gi, '');
+        let cleaned = str.replace(/[A-Z]/gi, '');
 
         // Remove currency symbols
         cleaned = cleaned.replace(/[$€£¥₹]/g, '');
