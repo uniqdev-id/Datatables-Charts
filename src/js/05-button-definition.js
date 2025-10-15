@@ -92,6 +92,52 @@
                             return;
                         }
 
+                        // Call the global onClick callback if provided (at button level)
+                        if (typeof config.onClick === 'function') {
+                            try {
+                                console.log('🎯 Calling global onClick callback for chart:', chartDef.title);
+                                const globalCallbackResult = config.onClick({
+                                    event: e,
+                                    chart: chartDef,
+                                    dataTable: dt,
+                                    config: config,
+                                    data: dt.data().toArray()
+                                });
+
+                                // If callback returns false, prevent chart rendering
+                                if (globalCallbackResult === false) {
+                                    console.log('🚫 Global onClick callback returned false, preventing chart rendering');
+                                    return;
+                                }
+                            } catch (error) {
+                                console.error('❌ Error in global onClick callback:', error);
+                                // Continue with chart rendering even if callback fails
+                            }
+                        }
+
+                        // Call the chart-specific onClick callback if provided
+                        if (typeof chartDef.onClick === 'function') {
+                            try {
+                                console.log('🎯 Calling chart-specific onClick callback for chart:', chartDef.title);
+                                const callbackResult = chartDef.onClick({
+                                    event: e,
+                                    chart: chartDef,
+                                    dataTable: dt,
+                                    config: config,
+                                    data: dt.data().toArray()
+                                });
+
+                                // If callback returns false, prevent chart rendering
+                                if (callbackResult === false) {
+                                    console.log('🚫 Chart-specific onClick callback returned false, preventing chart rendering');
+                                    return;
+                                }
+                            } catch (error) {
+                                console.error('❌ Error in chart-specific onClick callback:', error);
+                                // Continue with chart rendering even if callback fails
+                            }
+                        }
+
                         // Hide dropdown
                         $dropdown.remove();
                         config._dropdownMenu = null;
