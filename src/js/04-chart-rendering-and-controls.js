@@ -4,7 +4,7 @@
  * @param {object} config - The button configuration
  * @param {object} chartDef - The chart definition
  */
-function renderChart(dt, config, chartDef) {
+function renderAggregateChart(dt, config, chartDef) {
     console.log('🎯 renderChart called');
     console.log('📊 chartDef:', chartDef);
     console.log('⚙️ config:', config);
@@ -93,7 +93,7 @@ function renderChart(dt, config, chartDef) {
 
         // Aggregate the data using our new function.
         console.log('📈 Starting data aggregation...');
-        const chartData = aggregateData(dt, chartDef);
+        const chartData = aggregateDataByGroup(dt, chartDef);
         console.log('📊 Aggregated data:', chartData);
 
         // Apply theme colors to chart data

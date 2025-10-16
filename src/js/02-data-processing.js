@@ -4,7 +4,7 @@
  * @param {object} chartDef - The chart definition object from the config.
  * @returns {object} Data formatted for Chart.js ({ labels: [], datasets: [] }).
  */
-function aggregateData(dt, chartDef) {
+function aggregateDataByGroup(dt, chartDef) {
     console.log('📊 aggregateData called with chartDef:', chartDef);
 
     // Run tests in development

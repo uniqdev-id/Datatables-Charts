@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataTables Charts - Pivot Chart Example</title>
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+
+    <!-- Our plugin -->
+    <script src="../dist/datatables.charts.js"></script>
+    <link rel="stylesheet" href="../src/datatables.charts.css" />
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>DataTables Charts - Pivot Chart Example</h1>
+        <p>This example demonstrates the new pivot chart functionality for handling wide-format data.</p>
+
+        <table id="example" class="display">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Outlet Jogja</th>
+                    <th>Outlet Solo</th>
+                    <th>Outlet Semarang</th>
+                    <th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>20 Sept</td><td>45000</td><td>70000</td><td>90000</td><td>205000</td></tr>
+                <tr><td>21 Sept</td><td>52000</td><td>65000</td><td>85000</td><td>202000</td></tr>
+                <tr><td>22 Sept</td><td>48000</td><td>72000</td><td>95000</td><td>215000</td></tr>
+                <tr><td>23 Sept</td><td>55000</td><td>68000</td><td>88000</td><td>211000</td></tr>
+                <tr><td>24 Sept</td><td>47000</td><td>71000</td><td>92000</td><td>210000</td></tr>
+                <tr><td>25 Sept</td><td>53000</td><td>69000</td><td>87000</td><td>209000</td></tr>
+                <tr><td>26 Sept</td><td>110000</td><td>73000</td><td>94000</td><td>216000</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#example').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'charts',
+                        text: '📊 Charts',
+                        charts: [
+                            {
+                                type: 'line',
+                                title: 'Outlet Sales Over Time (Pivot Mode)',
+                                data: {
+                                    labelColumn: 'Date',
+                                    valueColumns: [
+                                        'Outlet Jogja',
+                                        'Outlet Solo',
+                                        'Outlet Semarang'
+                                    ]
+                                }
+                            },
+                            {
+                                type: 'bar',
+                                title: 'Total Sales by Date (Aggregate Mode)',
+                                data: {
+                                    labelColumn: 'Date',
+                                    valueColumn: 'Total',
+                                    aggregate: 'sum'
+                                }
+                            }
+                        ]
+                    }
+                ]
+            });
+        });
+    </script>
+</body>
+</html>

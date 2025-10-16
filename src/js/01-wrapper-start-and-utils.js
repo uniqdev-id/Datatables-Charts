@@ -8,6 +8,7 @@
      */
     function parseNumericValue(value) {
         if (value === null || value === undefined || value === '') {
+            console.log(`❌ Invalid value: ${value}`);
             return NaN;
         }
 
