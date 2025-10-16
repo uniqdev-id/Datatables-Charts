@@ -16,30 +16,6 @@ function aggregateDataByGroup(dt, chartDef) {
         testHtmlCleaning();
     }
 
-    const columnMap = {};
-    dt.columns().every(function () {
-        var idx = this.index();
-        var colName = this.column(idx).header();
-        console.log('datatable header: ', idx, $(colName).html());
-        columnMap[$(colName).html()] = idx;
-    });
-
-    //if labelColumn use string (labelColumn), lookup from columnMap
-    if (
-        typeof chartDef.data.labelColumn === 'string' ||
-        isNaN(chartDef.data.labelColumn)
-    ) {
-        chartDef.data.labelColumn = columnMap[chartDef.data.labelColumn];
-    }
-
-    //if valueColumn use string (valueColumn), lookup from columnMap
-    if (
-        typeof chartDef.data.valueColumn === 'string' ||
-        isNaN(chartDef.data.valueColumn)
-    ) {
-        chartDef.data.valueColumn = columnMap[chartDef.data.valueColumn];
-    }
-
     const labelColumnIndex = chartDef.data.labelColumn;
     const valueColumnIndex = chartDef.data.valueColumn;
     const aggregateType = chartDef.data.aggregate;
