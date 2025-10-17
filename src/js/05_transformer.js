@@ -67,6 +67,7 @@ function renderPivotChart(dt, config, chartDef) {
         type: chartDef.type,
         data: chartData,
         options: {
+            ...chartDef.options,
             responsive: true,
             maintainAspectRatio: false,
             plugins: {

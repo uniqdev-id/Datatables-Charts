@@ -32,6 +32,12 @@
             href="../src/datatables.charts.css"
         />
 
+         <link
+            rel="stylesheet"
+            type="text/css"
+            href="../src/datatables.charts.themes.css"
+        />
+
         <style>
             body {
                 font-family:
@@ -472,6 +478,7 @@
                             // This is our new plugin configuration
                             extend: 'charts',
                             text: '📊 Chart Options', // Custom button text indicating dropdown menu
+                            theme: 'dark',
                             onClick: function (context) {
                                 console.log(
                                     'Chart option clicked:',

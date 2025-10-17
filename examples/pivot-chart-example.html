@@ -19,11 +19,12 @@
     <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
 
     <!-- Our plugin -->
-    <!-- <script src="../dist/datatables.charts.js"></script>
-    <link rel="stylesheet" href="../src/datatables.charts.css" /> -->
+    <script src="../dist/datatables.charts.js"></script>
+    <link rel="stylesheet" href="../src/datatables.charts.css" />
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables-chart@latest/src/datatables.charts.css">
-    <script src="https://cdn.jsdelivr.net/npm/datatables-chart@latest/dist/datatables.charts.min.js"></script>
+    <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables-chart@latest/src/datatables.charts.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/datatables-chart@latest/src/datatables.charts.themes.css">
+    <script src="https://cdn.jsdelivr.net/npm/datatables-chart@latest/dist/datatables.charts.min.js"></script> -->
 
     <style>
         body {
@@ -86,6 +87,7 @@
                     {
                         extend: 'charts',
                         text: '📊 Charts',
+                        theme: 'dark',                        
                         charts: [
                             {
                                 type: 'line',
@@ -97,6 +99,17 @@
                                         'Outlet Solo',
                                         'Outlet Semarang'
                                     ]
+                                },
+                                options: { // Custom Chart.js options for better formatting
+                                    scales: {
+                                        y: {
+                                            ticks: {
+                                                callback: function(value, index, ticks) {
+                                                    return 'IDR ' + (value / 1000000) + 'M';
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             },
                             {
