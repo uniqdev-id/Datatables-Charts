@@ -5,6 +5,7 @@ A powerful and easy-to-use plugin for DataTables that allows developers and user
 ## Features
 
 *   **Pivot Charts:** Support for wide-format data with multiple value columns for complex visualizations.
+*   **Stacked Bar Charts:** Create stacked bar charts to visualize part-to-whole relationships with automatic sorting and limiting.
 *   **Chart.js Options:** Full support for adding custom Chart.js options to customize chart appearance and behavior.
 *   **Theming System:** Built-in light and dark themes for seamless integration with your website design.
 *   **OnClick Callbacks:** Custom click handlers for charts with access to chart context, data, and DataTable instance.
@@ -219,6 +220,44 @@ charts: [
     }
 ]
 ```
+
+### Stacked Bar Charts
+
+Create stacked bar charts to visualize part-to-whole relationships. The plugin automatically sorts data by total value and limits the display:
+
+- **Non-stacked bars:** Limited to top 10 items
+- **Stacked bars:** Limited to top 20 items
+
+```javascript
+charts: [
+    {
+        type: 'bar',
+        title: 'Sales by Product and Store',
+        stacked: true,  // Enable stacking
+        data: {
+            labelColumn: 'Product Name',
+            valueColumns: ['Store A', 'Store B', 'Store C', 'Store D']
+        },
+        options: {
+            scales: {
+                y: {
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + (value / 1000) + 'K';
+                        }
+                    }
+                }
+            }
+        }
+    }
+]
+```
+
+**Key Features:**
+- Automatically sorts items by total value (highest first)
+- Displays top 20 items for stacked bars, top 10 for regular bars
+- All datasets are reordered consistently with labels
+- Perfect for comparing contributions across multiple categories
 
 ### Custom Chart.js Options
 
