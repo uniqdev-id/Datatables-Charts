@@ -33,7 +33,11 @@ function aggregateDataByGroup(dt, chartDef) {
     // Iterate over the filtered rows
     let processedRows = 0;
     filteredRows.every(function (rowIndex) {
-        const rowData = this.data(); // Get the row data array
+        var rowData = this.data(); // Get the row data array
+        if (!Array.isArray(rowData)) {
+            console.log('rowData is not array, converting to array');
+            rowData = Object.values(rowData);
+        } 
         const rawLabel = rowData[labelColumnIndex];
         const label = cleanHtmlFromText(rawLabel);
         const value =
@@ -51,6 +55,7 @@ function aggregateDataByGroup(dt, chartDef) {
 
         if (isNaN(value)) {
             console.warn('⚠️ Skipping row with invalid value:', value);
+            console.log(`valueColumnIndex: ${valueColumnIndex}, rowData[valueColumnIndex]: ${rowData[valueColumnIndex]}, rawData: ${JSON.stringify(rowData)}`);
             return true; // Skip if value is not a number, continue iteration
         }
 
