@@ -288,8 +288,14 @@
                             // console.log('🔍 Checking for valueColumns...', chartDef.data.valueColumns);
                             // console.log('🔍 Checking for valueColumns is array...', Array.isArray(chartDef.data.valueColumns));
                             if (chartDef.data.valueColumns && Array.isArray(chartDef.data.valueColumns)) {
-                                // If yes, use the new pivot transformation logic.
-                                renderPivotChart(dt, config, chartDef);
+                                // Check if columnTotals is enabled
+                                if (chartDef.data.columnTotals === true) {
+                                    // Use column totals logic (sum each column)
+                                    renderColumnTotalsChart(dt, config, chartDef);
+                                } else {
+                                    // Use the pivot transformation logic (products on X-axis, stores as segments)
+                                    renderPivotChart(dt, config, chartDef);
+                                }
                             } else {
                                 // Otherwise, use the original aggregation logic.
                                 renderAggregateChart(dt, config, chartDef);

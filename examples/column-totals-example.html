@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataTables Charts - Column Totals Example</title>
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+
+    <!-- Our plugin -->
+    <script src="../dist/datatables.charts.js"></script>
+    <link rel="stylesheet" href="../src/datatables.charts.css" />
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            border-bottom: 3px solid #2196F3;
+            padding-bottom: 10px;
+        }
+        .description {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        th {
+            background-color: #2196F3;
+            color: white;
+            font-weight: bold;
+        }
+        tr:hover {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📊 DataTables Charts - Column Totals Example</h1>
+        
+        <div class="description">
+            <p>
+                This example demonstrates the <strong>column totals</strong> feature. 
+                Instead of showing products on the X-axis, this chart shows <strong>stores on the X-axis</strong> 
+                with the <strong>total sales for each store</strong> (sum of all products).
+            </p>
+            <p>
+                <strong>Use Case:</strong> Compare total performance across stores - 
+                Which store has the highest total sales? Which store is underperforming?
+            </p>
+        </div>
+
+        <table id="salesData" class="display">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Store A</th>
+                    <th>Store B</th>
+                    <th>Store C</th>
+                    <th>Store D</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td>Box Makanan</td><td>45000</td><td>70000</td><td>90000</td><td>55000</td></tr>
+                <tr><td>Kresek Tanggung</td><td>52000</td><td>65000</td><td>85000</td><td>48000</td></tr>
+                <tr><td>Plastik Bening</td><td>48000</td><td>72000</td><td>95000</td><td>62000</td></tr>
+                <tr><td>Tas Belanja</td><td>55000</td><td>68000</td><td>88000</td><td>71000</td></tr>
+                <tr><td>Kantong Kertas</td><td>47000</td><td>71000</td><td>92000</td><td>58000</td></tr>
+                <tr><td>Bubble Wrap</td><td>53000</td><td>69000</td><td>87000</td><td>64000</td></tr>
+                <tr><td>Packing Tape</td><td>60000</td><td>73000</td><td>94000</td><td>75000</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#salesData').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'charts',
+                        text: '📊 Charts',
+                        theme: 'dark',
+                        charts: [
+                            {
+                                type: 'bar',
+                                title: 'Total Sales by Store',
+                                data: {
+                                    valueColumns: [
+                                        'Store A',
+                                        'Store B',
+                                        'Store C',
+                                        'Store D'
+                                    ],
+                                    columnTotals: true  // ← This is the key property!
+                                },
+                                options: {
+                                    scales: {
+                                        y: {
+                                            ticks: {
+                                                callback: function(value) {
+                                                    return 'IDR ' + (value / 1000000).toFixed(1) + 'M';
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                type: 'line',
+                                title: 'Total Sales by Store (Line Chart)',
+                                data: {
+                                    valueColumns: [
+                                        'Store A',
+                                        'Store B',
+                                        'Store C',
+                                        'Store D'
+                                    ],
+                                    columnTotals: true
+                                },
+                                options: {
+                                    scales: {
+                                        y: {
+                                            ticks: {
+                                                callback: function(value) {
+                                                    return 'IDR ' + (value / 1000000).toFixed(1) + 'M';
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        ]
+                    }
+                ]
+            });
+        });
+    </script>
+</body>
+</html>
+

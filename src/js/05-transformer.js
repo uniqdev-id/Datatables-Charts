@@ -1,4 +1,105 @@
 /**
+ * Processes column totals (sums all values in each column/store).
+ * @param {DataTable.Api} dt - The DataTables API instance.
+ * @param {object} config - The button's main configuration object.
+ * @param {object} chartDef - The specific chart definition to render.
+ */
+function renderColumnTotalsChart(dt, config, chartDef) {
+    console.log('renderColumnTotalsChart');
+    const chartContainer = config._chartContainer;
+    const canvas = chartContainer.find('canvas')[0];
+
+    const columnMap = {};
+    dt.columns().every(function () {
+        var idx = this.index();
+        var colName = this.column(idx).header();
+        columnMap[$(colName).html()] = idx;
+    });
+
+    const valueColumnNames = chartDef.data.valueColumns;
+
+    // --- Data Transformation Logic ---
+    // For each column, sum all values in that column
+    const labels = [];
+    const totals = [];
+
+    valueColumnNames.forEach(colName => {
+        labels.push(colName);
+        let columnTotal = 0;
+
+        // Get all rows that match the current search filter
+        const filteredRows = dt.rows({ search: 'applied' });
+
+        // Sum all values in this column
+        filteredRows.indexes().each(function (rowIndex) {
+            var rowData = dt.row(rowIndex).data();
+            if (!Array.isArray(rowData)) {
+                console.log('rowData is not array, converting to array');
+                rowData = Object.values(rowData);
+            }
+            const value = parseNumericValue(rowData[columnMap[colName]]);
+            if (!isNaN(value)) {
+                columnTotal += value;
+            }
+        });
+
+        totals.push(columnTotal);
+    });
+
+    const chartData = {
+        labels: labels,
+        datasets: [{
+            label: chartDef.title,
+            data: totals
+        }]
+    };
+
+    // --- End of Data Transformation ---
+
+    // --- Sorting Logic for Column Totals ---
+    // Create array of indices with their totals for sorting
+    const indexedTotals = totals.map((total, index) => ({ index, total }));
+
+    // Sort by total in descending order (highest first)
+    indexedTotals.sort((a, b) => b.total - a.total);
+
+    // Reorder labels and data based on sorted indices
+    chartData.labels = indexedTotals.map(item => chartData.labels[item.index]);
+    chartData.datasets[0].data = indexedTotals.map(item => chartData.datasets[0].data[item.index]);
+
+    console.log(`📊 Column totals chart sorted by total value`);
+    // --- End of Sorting Logic ---
+
+    // --- Chart.js Options Logic ---
+    const chartOptions = {
+        ...chartDef.options,
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            title: {
+                display: true,
+                text: chartDef.title
+            }
+        }
+    };
+
+    // Destroy the old chart instance if it exists
+    if (config._chartInstance) {
+        config._chartInstance.destroy();
+    }
+
+    console.log('chartData');
+    console.log(chartData);
+
+    // Create the new Chart.js instance using our dynamically built options
+    config._chartInstance = new Chart(canvas, {
+        type: chartDef.type,
+        data: chartData,
+        options: chartOptions
+    });
+}
+
+/**
  * Processes "wide" or "pivoted" data and renders the chart.
  * @param {DataTable.Api} dt - The DataTables API instance.
  * @param {object} config - The button's main configuration object.

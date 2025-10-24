@@ -6,6 +6,7 @@ A powerful and easy-to-use plugin for DataTables that allows developers and user
 
 *   **Pivot Charts:** Support for wide-format data with multiple value columns for complex visualizations.
 *   **Stacked Bar Charts:** Create stacked bar charts to visualize part-to-whole relationships with automatic sorting and limiting.
+*   **Column Totals Charts:** Sum and compare total values across columns (stores/outlets) for performance analysis.
 *   **Chart.js Options:** Full support for adding custom Chart.js options to customize chart appearance and behavior.
 *   **Theming System:** Built-in light and dark themes for seamless integration with your website design.
 *   **OnClick Callbacks:** Custom click handlers for charts with access to chart context, data, and DataTable instance.
@@ -258,6 +259,40 @@ charts: [
 - Displays top 20 items for stacked bars, top 10 for regular bars
 - All datasets are reordered consistently with labels
 - Perfect for comparing contributions across multiple categories
+
+### Column Totals Charts
+
+Visualize the total value for each column (store/outlet) by summing all rows. This is useful for comparing overall performance across different categories:
+
+```javascript
+charts: [
+    {
+        type: 'bar',
+        title: 'Total Sales by Store',
+        data: {
+            valueColumns: ['Store A', 'Store B', 'Store C', 'Store D'],
+            columnTotals: true  // Enable column totals mode
+        },
+        options: {
+            scales: {
+                y: {
+                    ticks: {
+                        callback: function(value) {
+                            return '$' + (value / 1000000).toFixed(1) + 'M';
+                        }
+                    }
+                }
+            }
+        }
+    }
+]
+```
+
+**Key Features:**
+- Sums all values in each column across all rows
+- Automatically sorts stores by total sales (highest first)
+- Perfect for comparing store/outlet performance
+- Works with any chart type (bar, line, etc.)
 
 ### Custom Chart.js Options
 
