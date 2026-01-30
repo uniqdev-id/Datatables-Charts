@@ -11,6 +11,7 @@ A powerful and easy-to-use plugin for DataTables that allows developers and user
 *   **Theming System:** Built-in light and dark themes for seamless integration with your website design.
 *   **OnClick Callbacks:** Custom click handlers for charts with access to chart context, data, and DataTable instance.
 *   **Interactive Charts:** Charts dynamically update as the data in the table is filtered or searched.
+*   **Auto-Refresh Charts:** Charts automatically refresh when table data changes (e.g., after applying filters or resetting data).
 *   **Aggregation Engine:** Automatically `count`, `sum`, or `average` data for meaningful chart representations.
 *   **Multiple Chart Types:** Support for bar, line, pie, doughnut, and other Chart.js chart types.
 *   **Professional Controls:** Close and download buttons for each chart with smooth animations.
@@ -293,6 +294,31 @@ charts: [
 - Automatically sorts stores by total sales (highest first)
 - Perfect for comparing store/outlet performance
 - Works with any chart type (bar, line, etc.)
+
+### Auto-Refresh Charts
+
+Charts automatically refresh when the underlying table data changes. This ensures that charts always display current data without requiring manual intervention.
+
+**How It Works:**
+- When a chart is displayed and visible on the page, it listens for table redraw events
+- When the table is redrawn (e.g., after applying filters, resetting data, or searching), the chart automatically updates with the new data
+- If the chart is hidden, it won't refresh until it becomes visible again
+- When you close a chart, the auto-refresh listener is disabled
+
+**Example Workflow:**
+```javascript
+// User applies filters and calls resetState()
+vm.resetState();  // This triggers a table redraw
+
+// The chart automatically detects the redraw and refreshes itself
+// No additional code needed!
+```
+
+**Benefits:**
+- ✅ Always shows current data
+- ✅ No manual refresh needed
+- ✅ Seamless user experience
+- ✅ Works with all chart types and modes
 
 ### Custom Chart.js Options
 

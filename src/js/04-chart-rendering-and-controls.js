@@ -314,6 +314,10 @@ function closeChart(config) {
     if (config._chartContainer) {
         config._chartContainer.hide().empty();
     }
+
+    // Clear the current chart definition so auto-refresh won't trigger
+    config._currentChartDef = null;
+    console.log('💾 Cleared current chart definition');
 }
 
 /**

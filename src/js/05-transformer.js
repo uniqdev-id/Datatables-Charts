@@ -1,4 +1,37 @@
 /**
+ * Refreshes the currently displayed chart with new data from the table.
+ * This is called when the table is redrawn (e.g., after filtering or data changes).
+ * @param {DataTable.Api} dt - The DataTables API instance.
+ * @param {object} config - The button's main configuration object.
+ */
+function refreshCurrentChart(dt, config) {
+    console.log('🔄 Refreshing current chart...');
+
+    // Check if a chart is currently displayed
+    if (!config._currentChartDef) {
+        console.log('⚠️ No current chart definition found, skipping refresh');
+        return;
+    }
+
+    const chartDef = config._currentChartDef;
+
+    // Determine which rendering function to use based on chart type
+    if (chartDef.data.valueColumns && Array.isArray(chartDef.data.valueColumns)) {
+        // Pivot chart or column totals chart
+        if (chartDef.data.columnTotals === true) {
+            renderColumnTotalsChart(dt, config, chartDef);
+        } else {
+            renderPivotChart(dt, config, chartDef);
+        }
+    } else {
+        // Aggregate chart
+        renderAggregateChart(dt, config, chartDef);
+    }
+
+    console.log('✅ Chart refresh complete');
+}
+
+/**
  * Processes column totals (sums all values in each column/store).
  * @param {DataTable.Api} dt - The DataTables API instance.
  * @param {object} config - The button's main configuration object.
@@ -32,12 +65,10 @@ function renderColumnTotalsChart(dt, config, chartDef) {
 
         // Sum all values in this column
         filteredRows.indexes().each(function (rowIndex) {
-            var rowData = dt.row(rowIndex).data();
-            if (!Array.isArray(rowData)) {
-                console.log('rowData is not array, converting to array');
-                rowData = Object.values(rowData);
-            }
-            const value = parseNumericValue(rowData[columnMap[colName]]);
+            // Use cell().render('display') to get RENDERED values
+            // This handles columns with "data": null and custom render functions
+            const renderedValue = dt.cell(rowIndex, columnMap[colName]).render('display');
+            const value = parseNumericValue(renderedValue);
             if (!isNaN(value)) {
                 columnTotal += value;
             }
@@ -133,12 +164,9 @@ function renderPivotChart(dt, config, chartDef) {
 
     // Iterate over the indexes of the filtered rows to get the data
     filteredRows.indexes().each(function (rowIndex) {
-        var rowData = dt.row(rowIndex).data();
-         if (!Array.isArray(rowData)) {
-            console.log('rowData is not array, converting to array');
-            rowData = Object.values(rowData);
-        } 
-        const rawLabel = rowData[labelColumnName];
+        // Use cell().render('display') to get RENDERED values
+        // This handles columns with "data": null and custom render functions
+        const rawLabel = dt.cell(rowIndex, columnMap[labelColumnName]).render('display');
         const label = cleanHtmlFromText(rawLabel);
 
         // 1. Add the label for the X-axis
@@ -146,13 +174,12 @@ function renderPivotChart(dt, config, chartDef) {
 
         // 2. For each dataset, find the corresponding value in the row and add it
         valueColumnNames.forEach((colName, index) => {
-            // console.log(`colName: ${colName}, index: ${index}`);
-            // console.log(`rowData[colName]: ${rowData[colName]}`);
-            const value = parseNumericValue(rowData[columnMap[colName]]);
+            const renderedValue = dt.cell(rowIndex, columnMap[colName]).render('display');
+            const value = parseNumericValue(renderedValue);
             datasets[index].data.push(value);
             if (isNaN(value)) {
                 console.warn('⚠️ Skipping row with invalid value:', value);
-                console.log(`colName: ${colName}, columnMap: ${JSON.stringify(columnMap)}, rowData[colName]: ${rowData[columnMap[colName]]}, rowData: ${JSON.stringify(rowData)}`);
+                console.log(`colName: ${colName}, columnMap: ${JSON.stringify(columnMap)}, renderedValue: ${renderedValue}`);
             }
         });
     });

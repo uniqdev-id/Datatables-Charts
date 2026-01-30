@@ -33,29 +33,31 @@ function aggregateDataByGroup(dt, chartDef) {
     // Iterate over the filtered rows
     let processedRows = 0;
     filteredRows.every(function (rowIndex) {
-        var rowData = this.data(); // Get the row data array
-        if (!Array.isArray(rowData)) {
-            console.log('rowData is not array, converting to array');
-            rowData = Object.values(rowData);
-        } 
-        const rawLabel = rowData[labelColumnIndex];
+        // Use cell().render('display') to get the RENDERED value
+        // This handles columns with "data": null and custom render functions
+        const rawLabel = dt.cell(rowIndex, labelColumnIndex).render('display');
         const label = cleanHtmlFromText(rawLabel);
-        const value =
-            valueColumnIndex !== undefined
-                ? parseNumericValue(rowData[valueColumnIndex])
-                : 1;
+
+        // Get the rendered display value for the value column
+        // This correctly captures computed values like "profit = sub_total - total_hpp"
+        let value = 1;
+        if (valueColumnIndex !== undefined) {
+            const renderedValue = dt.cell(rowIndex, valueColumnIndex).render('display');
+            value = parseNumericValue(renderedValue);
+            console.log(`🔢 Cell(${rowIndex}, ${valueColumnIndex}) rendered: "${renderedValue}" → parsed: ${value}`);
+        }
 
         processedRows++;
         if (processedRows <= 3) {
             // Log first 3 rows for debugging
             console.log(
-                `📋 Row ${processedRows}: rawLabel="${rawLabel}", cleanLabel="${label}", rawValue="${rowData[valueColumnIndex]}", parsedValue=${value}`,
+                `📋 Row ${processedRows}: rawLabel="${rawLabel}", cleanLabel="${label}", parsedValue=${value}`,
             );
         }
 
         if (isNaN(value)) {
             console.warn('⚠️ Skipping row with invalid value:', value);
-            console.log(`valueColumnIndex: ${valueColumnIndex}, rowData[valueColumnIndex]: ${rowData[valueColumnIndex]}, rawData: ${JSON.stringify(rowData)}`);
+            console.log(`valueColumnIndex: ${valueColumnIndex}, rowIndex: ${rowIndex}`);
             return true; // Skip if value is not a number, continue iteration
         }
 

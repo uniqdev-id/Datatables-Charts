@@ -19,6 +19,7 @@
             // The container will be populated with canvas and controls when a chart is rendered
 
             config._chartContainer = chartContainer;
+            config._currentChartDef = null; // Store the currently displayed chart definition
 
             console.log('📦 Chart container created:', chartContainer);
             console.log('📦 Container jQuery object:', chartContainer.length);
@@ -55,6 +56,20 @@
             // Store dropdown state
             config._dropdownOpen = false;
             config._dropdownMenu = null;
+
+            // --- AUTO-REFRESH LOGIC ---
+            // Listen for table redraw events and refresh chart if visible
+            dt.on('draw.dt', function () {
+                console.log('📊 Table redraw detected, checking if chart needs refresh...');
+
+                // Only refresh if chart is visible and a chart is currently displayed
+                if (config._chartContainer.is(':visible') && config._currentChartDef) {
+                    console.log('🔄 Chart is visible, refreshing with new data...');
+                    refreshCurrentChart(dt, config);
+                } else {
+                    console.log('⏭️ Chart is hidden or no chart displayed, skipping refresh');
+                }
+            });
         },
 
         action: function (e, dt, node, config) {
@@ -282,6 +297,10 @@
                                 chartDef.data.valueColumn = columnMap[chartDef.data.valueColumn];
                             }
 
+
+                            // Store the current chart definition for auto-refresh on table redraw
+                            config._currentChartDef = chartDef;
+                            console.log('💾 Stored current chart definition:', chartDef.title);
 
                             // ROUTER LOGIC:
                             // Check if the developer provided the 'valueColumns' array.
