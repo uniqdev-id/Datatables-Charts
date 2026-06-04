@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DataTables Charts - Scatter Graph Example</title>
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/jquery.dataTables.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- DataTables JS & Buttons -->
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+
+    <!-- Our plugin -->
+    <script src="../dist/datatables.charts.js"></script>
+    <link rel="stylesheet" href="../src/datatables.charts.css" />
+    <link rel="stylesheet" href="../src/datatables.charts.themes.css" />
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+        .container {
+            max-width: 1100px;
+            margin: 0 auto;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            backdrop-filter: blur(10px);
+        }
+        h1 {
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 2rem;
+            margin-top: 0;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        h1 span {
+            font-size: 2.2rem;
+        }
+        .description {
+            color: #475569;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+        .badge {
+            background-color: #3b82f6;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-block;
+            margin-bottom: 10px;
+        }
+        /* Custom table styling to fit Inter and modern design */
+        table.dataTable {
+            border-collapse: collapse !important;
+            margin-top: 20px !important;
+            margin-bottom: 20px !important;
+        }
+        table.dataTable thead th {
+            background-color: #0f172a !important;
+            color: #ffffff !important;
+            font-weight: 600 !important;
+            border-bottom: none !important;
+            padding: 14px 10px !important;
+        }
+        table.dataTable tbody td {
+            padding: 12px 10px !important;
+            border-bottom: 1px solid #e2e8f0 !important;
+        }
+        table.dataTable tbody tr:hover {
+            background-color: #f8fafc !important;
+        }
+        /* Style the custom datatable buttons container slightly */
+        .dt-buttons {
+            margin-bottom: 20px;
+        }
+        .dt-button {
+            background: #3b82f6 !important;
+            color: white !important;
+            border: none !important;
+            border-radius: 6px !important;
+            padding: 8px 16px !important;
+            font-weight: 500 !important;
+            box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.2) !important;
+            transition: all 0.2s ease !important;
+        }
+        .dt-button:hover {
+            background: #2563eb !important;
+            transform: translateY(-1px) !important;
+            box-shadow: 0 6px 12px -1px rgba(59, 130, 246, 0.3) !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <span class="badge">New Capability</span>
+        <h1><span>📊</span> DataTables Charts - Scatter Graph Example</h1>
+        
+        <div class="description">
+            <p>
+                This page demonstrates the newly added <strong>Scatter Graph</strong> support. 
+                Scatter charts are perfect for analyzing relationships between two numerical columns (e.g., Price vs Profit) across items.
+            </p>
+            <p>
+                <strong>Key Features Highlighted:</strong>
+                <ul>
+                    <li><strong>Clustering (Group by Color):</strong> Points are grouped and colored dynamically by mapping a <code>clusterColumn</code> (e.g., Category).</li>
+                    <li><strong>Smart Tooltips:</strong> Hovering over a point displays its product name (from <code>labelColumn</code>) along with axis-specific values instead of raw coordinates.</li>
+                    <li><strong>Auto-Refresh:</strong> The chart dynamically updates when you search or filter the table. Try typing <em>"Furniture"</em> in the search box to filter the clusters!</li>
+                </ul>
+            </p>
+        </div>
+
+        <table id="productCatalog" class="display">
+            <thead>
+                <tr>
+                    <th>Product Name</th>
+                    <th>Category</th>
+                    <th>Price (USD)</th>
+                    <th>Profit (USD)</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- Electronics -->
+                <tr><td>Wireless Mouse</td><td>Electronics</td><td>$25.00</td><td>$10.00</td></tr>
+                <tr><td>Mechanical Keyboard</td><td>Electronics</td><td>$89.90</td><td>$35.50</td></tr>
+                <tr><td>USB-C Hub</td><td>Electronics</td><td>$45.00</td><td>$18.00</td></tr>
+                <tr><td>Noise Cancelling Headphones</td><td>Electronics</td><td>$299.00</td><td>$120.00</td></tr>
+                <tr><td>Smart Watch</td><td>Electronics</td><td>$199.99</td><td>$75.00</td></tr>
+                
+                <!-- Furniture -->
+                <tr><td>Ergonomic Office Chair</td><td>Furniture</td><td>$350.00</td><td>$105.00</td></tr>
+                <tr><td>Standing Desk</td><td>Furniture</td><td>$499.00</td><td>$160.00</td></tr>
+                <tr><td>LED Desk Lamp</td><td>Furniture</td><td>$35.00</td><td>$12.50</td></tr>
+                <tr><td>Monitor Stand</td><td>Furniture</td><td>$59.99</td><td>$24.00</td></tr>
+                
+                <!-- Office Supplies -->
+                <tr><td>Leather Journal</td><td>Office Supplies</td><td>$18.50</td><td>$9.00</td></tr>
+                <tr><td>Premium Fountain Pen</td><td>Office Supplies</td><td>$65.00</td><td>$30.00</td></tr>
+                <tr><td>Gel Pen Multipack</td><td>Office Supplies</td><td>$12.00</td><td>$5.50</td></tr>
+                <tr><td>Filing Cabinet Organizer</td><td>Office Supplies</td><td>$28.99</td><td>$11.00</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <script>
+        $(document).ready(function() {
+            $('#productCatalog').DataTable({
+                dom: 'Bfrtip',
+                buttons: [
+                    {
+                        extend: 'charts',
+                        text: '📊 View Scatter Charts',
+                        theme: 'light',
+                        charts: [
+                            {
+                                type: 'scatter',
+                                title: 'Product Profitability Scatter (By Category)',
+                                data: {
+                                    xColumn: 'Price (USD)',        // Resolve by Header Name
+                                    yColumn: 'Profit (USD)',       // Resolve by Header Name
+                                    labelColumn: 'Product Name',   // Shows as tooltip title
+                                    clusterColumn: 'Category'      // Colors points by category (cluster)
+                                }
+                            },
+                            {
+                                type: 'scatter',
+                                title: 'Price vs Profit (All Products)',
+                                data: {
+                                    xColumn: 'Price (USD)',
+                                    yColumn: 'Profit (USD)',
+                                    labelColumn: 'Product Name'
+                                    // No cluster column, all points in one group
+                                }
+                            }
+                        ]
+                    }
+                ]
+            });
+        });
+    </script>
+</body>
+</html>

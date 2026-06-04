@@ -1,0 +1,731 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>DataTables Charts - Sales Data API Example</title>
+
+        <!-- DataTables CSS -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css"
+        />
+
+        <!-- DataTables Buttons CSS -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.datatables.net/buttons/2.4.1/css/buttons.dataTables.min.css"
+        />
+
+        <!-- Chart.js -->
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+        <!-- jQuery -->
+        <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+
+        <!-- DataTables JS -->
+        <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+        <script src="https://cdn.datatables.net/buttons/2.4.1/js/dataTables.buttons.min.js"></script>
+
+        <!-- Our plugin -->
+        <script src="../dist/datatables.charts.js"></script>
+        <link rel="stylesheet" href="../src/datatables.charts.css" />
+        <link rel="stylesheet" href="../src/datatables.charts.themes.css" />
+
+        <style>
+            body {
+                font-family:
+                    -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+                    sans-serif;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                margin: 0;
+                padding: 20px;
+                min-height: 100vh;
+            }
+
+            .container {
+                max-width: 1400px;
+                margin: 0 auto;
+                background: white;
+                border-radius: 15px;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+                overflow: hidden;
+            }
+
+            .header {
+                background: linear-gradient(135deg, #f7931e 0%, #f2a900 100%);
+                color: white;
+                padding: 30px;
+                text-align: center;
+            }
+
+            .header h1 {
+                margin: 0;
+                font-size: 2.5rem;
+                font-weight: 700;
+                text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            }
+
+            .header p {
+                margin: 10px 0 0 0;
+                font-size: 1.1rem;
+                opacity: 0.9;
+            }
+
+            .content {
+                padding: 30px;
+            }
+
+            .info-section {
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                padding: 25px;
+                border-radius: 10px;
+                margin-bottom: 30px;
+            }
+
+            .info-section h3 {
+                margin-top: 0;
+                font-size: 1.4rem;
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+
+            .api-info {
+                background: #f8f9fa;
+                border: 2px solid #e9ecef;
+                border-radius: 8px;
+                padding: 20px;
+                margin-bottom: 25px;
+            }
+
+            .api-info h4 {
+                color: #495057;
+                margin-top: 0;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .api-endpoint {
+                background: #2d3748;
+                color: #68d391;
+                padding: 12px;
+                border-radius: 6px;
+                font-family: 'Courier New', monospace;
+                font-size: 0.9rem;
+                margin: 10px 0;
+                word-break: break-all;
+            }
+
+            .chart-features {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+                gap: 15px;
+                margin: 20px 0;
+            }
+
+            .feature-item {
+                background: rgba(255, 255, 255, 0.15);
+                padding: 15px;
+                border-radius: 8px;
+                backdrop-filter: blur(10px);
+            }
+
+            .feature-item strong {
+                display: block;
+                margin-bottom: 5px;
+            }
+
+            .loading-spinner {
+                text-align: center;
+                padding: 50px;
+                font-size: 1.2rem;
+                color: #666;
+            }
+
+            .spinner {
+                display: inline-block;
+                width: 40px;
+                height: 40px;
+                border: 4px solid #f3f3f3;
+                border-top: 4px solid #f7931e;
+                border-radius: 50%;
+                animation: spin 1s linear infinite;
+                margin-right: 15px;
+            }
+
+            @keyframes spin {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+
+            table.dataTable {
+                border-collapse: separate;
+                border-spacing: 0;
+                border-radius: 8px;
+                overflow: hidden;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            }
+
+            table.dataTable thead th {
+                background: linear-gradient(135deg, #f7931e 0%, #f2a900 100%);
+                color: white;
+                font-weight: 600;
+                border: none;
+                padding: 15px 12px;
+            }
+
+            table.dataTable tbody td {
+                padding: 12px;
+                border-bottom: 1px solid #f1f3f4;
+            }
+
+            table.dataTable tbody tr:hover {
+                background-color: #fff3e0;
+            }
+
+            .currency {
+                font-weight: 600;
+                color: #f7931e;
+            }
+
+            .percentage {
+                font-weight: 600;
+                padding: 4px 8px;
+                border-radius: 4px;
+                color: white;
+            }
+
+            .percentage.positive {
+                background-color: #28a745;
+            }
+
+            .percentage.negative {
+                background-color: #dc3545;
+            }
+
+            .percentage.neutral {
+                background-color: #6c757d;
+            }
+
+            .dt-buttons {
+                margin-bottom: 20px;
+            }
+
+            .dt-button {
+                background: linear-gradient(135deg, #f7931e 0%, #f2a900 100%);
+                border: none;
+                color: white;
+                padding: 10px 20px;
+                border-radius: 6px;
+                font-weight: 600;
+                transition: all 0.3s ease;
+            }
+
+            .dt-button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 4px 12px rgba(247, 147, 30, 0.4);
+            }
+
+            .error-message {
+                background: #f8d7da;
+                color: #721c24;
+                padding: 20px;
+                border: 1px solid #f5c6cb;
+                border-radius: 8px;
+                margin: 20px 0;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="header">
+                <h1>📊 Sales Data Dashboard</h1>
+                <p>
+                    Real-time data visualization with DataTables Charts Plugin
+                </p>
+            </div>
+
+            <div class="content">
+                <div class="info-section">
+                    <h3>🚀 Live API Integration Demo</h3>
+                    <div class="chart-features">
+                        <div class="feature-item">
+                            <strong>📊 Sales by Customer</strong>
+                            Bar chart showing total sales by customer
+                        </div>
+                        <div class="feature-item">
+                            <strong>📈 Quantity vs Revenue</strong>
+                            Compare total quantity and grand total
+                        </div>
+                        <div class="feature-item">
+                            <strong>📉 Customer Distribution</strong>
+                            Pie chart showing customer sales distribution
+                        </div>
+                        <div class="feature-item">
+                            <strong>🔄 Sales Timeline</strong>
+                            Line chart showing sales over time
+                        </div>
+                        <div class="feature-item">
+                            <strong>⚡ Real-time Updates</strong>
+                            Charts automatically refresh when data is filtered
+                        </div>
+                        <div class="feature-item">
+                            <strong>💾 Export Options</strong>
+                            Download charts as PNG images with one click
+                        </div>
+                    </div>
+                </div>
+
+                <div class="api-info">
+                    <h4>🔌 API Endpoint Information</h4>
+                    <p><strong>Data Source:</strong> Mock API Sales Data</p>
+                    <div class="api-endpoint">
+                        GET
+                        https://690d903ea6d92d83e85205fb.mockapi.io/uniq/api/sales
+                    </div>
+                    <p>
+                        <small
+                            >This example demonstrates how to use DataTables
+                            Ajax to fetch live data and create interactive
+                            charts.</small
+                        >
+                    </p>
+                </div>
+
+                <div
+                    class="api-controls"
+                    style="text-align: center; margin: 30px 0"
+                >
+                    <button
+                        id="loadDataBtn"
+                        class="dt-button"
+                        style="font-size: 1.1rem; padding: 15px 30px"
+                    >
+                        🔄 Load Sales Data
+                    </button>
+                    <p
+                        style="
+                            margin-top: 15px;
+                            color: #666;
+                            font-style: italic;
+                        "
+                    >
+                        Click the button above to fetch sales data from the API
+                    </p>
+                </div>
+
+                <div id="loading" class="loading-spinner" style="display: none">
+                    <div class="spinner"></div>
+                    Loading sales data...
+                </div>
+
+                <div id="error-container" style="display: none"></div>
+
+                <div id="table-container" style="display: none">
+                    <table id="salesTable" class="display" style="width: 100%">
+                        <thead>
+                            <tr>
+                                <th>Created At</th>
+                                <th>Customer</th>
+                                <th>Total Qty</th>
+                                <th>Grand Total</th>
+                                <th>ID</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            $(document).ready(function () {
+                let table = null;
+
+                // Function to load data
+                function loadSalesData() {
+                    // Show loading spinner and hide other elements
+                    $('#loading').show();
+                    $('#error-container').hide();
+                    $('#table-container').hide();
+                    $('#loadDataBtn')
+                        .prop('disabled', true)
+                        .text('🔄 Loading...');
+
+                    // If table already exists, destroy it
+                    if (table) {
+                        table.destroy();
+                        $('#salesTable').empty();
+                    }
+
+                    // Initialize DataTable with Ajax
+                    table = $('#salesTable').DataTable({
+                        ajax: {
+                            cache: true,
+                            url: 'https://690d903ea6d92d83e85205fb.mockapi.io/uniq/api/sales',
+                            dataSrc: function (json) {
+                                // Hide loading spinner and show table
+                                $('#loading').hide();
+                                $('#table-container').show();
+                                $('#loadDataBtn')
+                                    .prop('disabled', false)
+                                    .text('🔄 Reload Sales Data');
+
+                                console.log('API Response:', json);
+                                return json;
+                            },
+                            error: function (xhr, error, thrown) {
+                                console.error('API Error:', error, thrown);
+                                $('#loading').hide();
+                                $('#loadDataBtn')
+                                    .prop('disabled', false)
+                                    .text('🔄 Retry Loading Data');
+                                $('#error-container')
+                                    .html(
+                                        `
+                                <div class="error-message">
+                                    <h4>⚠️ Error Loading Data</h4>
+                                    <p>Unable to fetch sales data from the API.</p>
+                                    <p><strong>Error:</strong> ${error} - ${thrown}</p>
+                                    <p>This might be due to CORS restrictions or API unavailability.
+                                       In a production environment, you would typically proxy this request through your backend.</p>
+                                </div>
+                            `,
+                                    )
+                                    .show();
+                            },
+                        },
+                        columns: [
+                            {
+                                data: 'createdAt',
+                                title: 'Created At',
+                                render: function (data, type, row) {
+                                    if (type === 'display') {
+                                        return new Date(data).toLocaleString();
+                                    }
+                                    return data;
+                                },
+                            },
+                            {
+                                data: 'customer',
+                                title: 'Customer',
+                            },
+                            {
+                                data: 'total_qty',
+                                title: 'Total Qty',
+                                render: function (data, type, row) {
+                                    if (type === 'display') {
+                                        return parseFloat(
+                                            data,
+                                        ).toLocaleString();
+                                    }
+                                    return data;
+                                },
+                            },
+                            {
+                                data: 'grand_total',
+                                title: 'Grand Total',
+                                render: function (data, type, row) {
+                                    if (type === 'display') {
+                                        return (
+                                            '<span class="currency">$' +
+                                            parseFloat(data).toLocaleString() +
+                                            '</span>'
+                                        );
+                                    }
+                                    return data;
+                                },
+                            },
+                            {
+                                data: 'id',
+                                title: 'ID',
+                            },
+                        ],
+                        dom: 'Bfrtip',
+                        pageLength: 25,
+                        order: [[0, 'desc']], // Sort by date descending
+                        buttons: [
+                            'copy',
+                            {
+                                extend: 'charts',
+                                text: '📊 Sales Charts',
+                                theme: 'light',
+                                onClick: function (context) {
+                                    console.log(
+                                        'Chart clicked:',
+                                        context.chart.title,
+                                    );
+                                    console.log(
+                                        'Available data points:',
+                                        context.data.length,
+                                    );
+                                },
+                                charts: [
+                                    {
+                                        type: 'bar',
+                                        title: '💰 Grand Total by Customer',
+                                        data: {
+                                            labelColumn: 'customer',
+                                            valueColumn: 'grand_total',
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            plugins: {
+                                                legend: {
+                                                    display: false,
+                                                },
+                                                tooltip: {
+                                                    callbacks: {
+                                                        label: function (
+                                                            context,
+                                                        ) {
+                                                            return (
+                                                                'Total: $' +
+                                                                context.parsed.y.toLocaleString()
+                                                            );
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: false,
+                                                    ticks: {
+                                                        callback: function (
+                                                            value,
+                                                        ) {
+                                                            return (
+                                                                '$' +
+                                                                value.toLocaleString()
+                                                            );
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                            elements: {
+                                                line: {
+                                                    borderColor: '#f7931e',
+                                                    backgroundColor:
+                                                        'rgba(247, 147, 30, 0.1)',
+                                                    fill: true,
+                                                },
+                                                point: {
+                                                    backgroundColor: '#f7931e',
+                                                    borderColor: '#fff',
+                                                    borderWidth: 2,
+                                                },
+                                            },
+                                        },
+                                    },
+                                    {
+                                        type: 'bar',
+                                        title: '📊 Quantity vs Revenue by Customer',
+                                        data: {
+                                            labelColumn: 'customer',
+                                            valueColumns: [
+                                                'total_qty',
+                                                'grand_total',
+                                            ],
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            plugins: {
+                                                tooltip: {
+                                                    callbacks: {
+                                                        label: function (
+                                                            context,
+                                                        ) {
+                                                            return (
+                                                                context.dataset
+                                                                    .label +
+                                                                ': ' +
+                                                                context.parsed.y.toLocaleString()
+                                                            );
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: false,
+                                                    ticks: {
+                                                        callback: function (
+                                                            value,
+                                                        ) {
+                                                            return value.toLocaleString();
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                    {
+                                        type: 'line',
+                                        title: '📈 Sales Timeline',
+                                        data: {
+                                            labelColumn: 'createdAt',
+                                            valueColumn: 'grand_total',
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            plugins: {
+                                                legend: {
+                                                    display: false,
+                                                },
+                                                tooltip: {
+                                                    callbacks: {
+                                                        label: function (
+                                                            context,
+                                                        ) {
+                                                            return (
+                                                                'Total: $' +
+                                                                context.parsed.y.toLocaleString()
+                                                            );
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                            scales: {
+                                                y: {
+                                                    beginAtZero: false,
+                                                    ticks: {
+                                                        callback: function (
+                                                            value,
+                                                        ) {
+                                                            return (
+                                                                '$' +
+                                                                value.toLocaleString()
+                                                            );
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                    {
+                                        type: 'pie',
+                                        title: '🔄 Customer Sales Distribution',
+                                        data: {
+                                            labelColumn: 'customer',
+                                            valueColumn: 'grand_total',
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            plugins: {
+                                                tooltip: {
+                                                    callbacks: {
+                                                        label: function (
+                                                            context,
+                                                        ) {
+                                                            return (
+                                                                context.label +
+                                                                ': $' +
+                                                                context.parsed.toLocaleString()
+                                                            );
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                    {
+                                        type: 'doughnut',
+                                        title: '💹 Average Sales by Customer',
+                                        data: {
+                                            labelColumn: 'customer',
+                                            valueColumn: 'grand_total',
+                                            aggregate: 'avg',
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            plugins: {
+                                                tooltip: {
+                                                    callbacks: {
+                                                        label: function (
+                                                            context,
+                                                        ) {
+                                                            return (
+                                                                context.label +
+                                                                ': $' +
+                                                                context.parsed.toLocaleString()
+                                                            );
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                        },
+                                    },
+                                    {
+                                        type: 'bar',
+                                        title: '📊 Total Quantity by Customer',
+                                        data: {
+                                            labelColumn: 'customer',
+                                            valueColumn: 'total_qty',
+                                        },
+                                        options: {
+                                            responsive: true,
+                                            plugins: {
+                                                legend: {
+                                                    display: false,
+                                                },
+                                                tooltip: {
+                                                    callbacks: {
+                                                        label: function (
+                                                            context,
+                                                        ) {
+                                                            return (
+                                                                'Qty: ' +
+                                                                context.parsed.y.toLocaleString()
+                                                            );
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                            scales: {
+                                                y: {
+                                                    ticks: {
+                                                        callback: function (
+                                                            value,
+                                                        ) {
+                                                            return value.toLocaleString();
+                                                        },
+                                                    },
+                                                },
+                                            },
+                                            backgroundColor: '#28a745',
+                                        },
+                                    },
+                                ],
+                            },
+                        ],
+                        processing: true,
+                        language: {
+                            processing: 'Loading sales data...',
+                            emptyTable: 'No sales data available',
+                            info: 'Showing _START_ to _END_ of _TOTAL_ sales records',
+                            infoEmpty: 'No records available',
+                            search: 'Search sales data:',
+                            lengthMenu: 'Show _MENU_ records per page',
+                        },
+                    });
+                }
+
+                // Add click event for the load data button
+                $('#loadDataBtn').on('click', function () {
+                    loadSalesData();
+                });
+
+                // Add some console logging for debugging
+                console.log(
+                    'Sales DataTable ready - click "Load Sales Data" to fetch data',
+                );
+            });
+        </script>
+    </body>
+</html>

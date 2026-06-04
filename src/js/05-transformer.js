@@ -16,7 +16,9 @@ function refreshCurrentChart(dt, config) {
     const chartDef = config._currentChartDef;
 
     // Determine which rendering function to use based on chart type
-    if (chartDef.data.valueColumns && Array.isArray(chartDef.data.valueColumns)) {
+    if (chartDef.type === 'scatter') {
+        renderScatterChart(dt, config, chartDef);
+    } else if (chartDef.data.valueColumns && Array.isArray(chartDef.data.valueColumns)) {
         // Pivot chart or column totals chart
         if (chartDef.data.columnTotals === true) {
             renderColumnTotalsChart(dt, config, chartDef);

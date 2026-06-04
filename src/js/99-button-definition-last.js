@@ -282,19 +282,49 @@
                             });
 
                             //if labelColumn use string (labelColumn), lookup from columnMap
+                            //if labelColumn use string (labelColumn), lookup from columnMap
                             if (
-                                typeof chartDef.data.labelColumn === 'string' ||
-                                isNaN(chartDef.data.labelColumn)
+                                chartDef.data.labelColumn !== undefined &&
+                                (typeof chartDef.data.labelColumn === 'string' ||
+                                isNaN(chartDef.data.labelColumn))
                             ) {
                                 chartDef.data.labelColumn = columnMap[chartDef.data.labelColumn];
                             }
 
                             //if valueColumn use string (valueColumn), lookup from columnMap
                             if (
-                                typeof chartDef.data.valueColumn === 'string' ||
-                                isNaN(chartDef.data.valueColumn)
+                                chartDef.data.valueColumn !== undefined &&
+                                (typeof chartDef.data.valueColumn === 'string' ||
+                                isNaN(chartDef.data.valueColumn))
                             ) {
                                 chartDef.data.valueColumn = columnMap[chartDef.data.valueColumn];
+                            }
+
+                            //if xColumn use string (xColumn), lookup from columnMap
+                            if (
+                                chartDef.data.xColumn !== undefined &&
+                                (typeof chartDef.data.xColumn === 'string' ||
+                                isNaN(chartDef.data.xColumn))
+                            ) {
+                                chartDef.data.xColumn = columnMap[chartDef.data.xColumn];
+                            }
+
+                            //if yColumn use string (yColumn), lookup from columnMap
+                            if (
+                                chartDef.data.yColumn !== undefined &&
+                                (typeof chartDef.data.yColumn === 'string' ||
+                                isNaN(chartDef.data.yColumn))
+                            ) {
+                                chartDef.data.yColumn = columnMap[chartDef.data.yColumn];
+                            }
+
+                            //if clusterColumn use string (clusterColumn), lookup from columnMap
+                            if (
+                                chartDef.data.clusterColumn !== undefined &&
+                                (typeof chartDef.data.clusterColumn === 'string' ||
+                                isNaN(chartDef.data.clusterColumn))
+                            ) {
+                                chartDef.data.clusterColumn = columnMap[chartDef.data.clusterColumn];
                             }
 
 
@@ -306,7 +336,9 @@
                             // Check if the developer provided the 'valueColumns' array.
                             // console.log('🔍 Checking for valueColumns...', chartDef.data.valueColumns);
                             // console.log('🔍 Checking for valueColumns is array...', Array.isArray(chartDef.data.valueColumns));
-                            if (chartDef.data.valueColumns && Array.isArray(chartDef.data.valueColumns)) {
+                            if (chartDef.type === 'scatter') {
+                                renderScatterChart(dt, config, chartDef);
+                            } else if (chartDef.data.valueColumns && Array.isArray(chartDef.data.valueColumns)) {
                                 // Check if columnTotals is enabled
                                 if (chartDef.data.columnTotals === true) {
                                     // Use column totals logic (sum each column)
