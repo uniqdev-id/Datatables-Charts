@@ -129,7 +129,8 @@
             <p>
                 <strong>Key Features Highlighted:</strong>
                 <ul>
-                    <li><strong>Clustering (Group by Color):</strong> Points are grouped and colored dynamically by mapping a <code>clusterColumn</code> (e.g., Category).</li>
+                    <li><strong>Category Clustering:</strong> Points are grouped and colored by mapping a <code>clusterColumn</code> (e.g., Category) from the table.</li>
+                    <li><strong>Dynamic K-Means Clustering:</strong> Automatically compute and group points into mathematical clusters using <code>clusters: 3</code> (no pre-defined cluster column needed).</li>
                     <li><strong>Smart Tooltips:</strong> Hovering over a point displays its product name (from <code>labelColumn</code>) along with axis-specific values instead of raw coordinates.</li>
                     <li><strong>Auto-Refresh:</strong> The chart dynamically updates when you search or filter the table. Try typing <em>"Furniture"</em> in the search box to filter the clusters!</li>
                 </ul>
@@ -186,6 +187,16 @@
                                     yColumn: 'Profit (USD)',       // Resolve by Header Name
                                     labelColumn: 'Product Name',   // Shows as tooltip title
                                     clusterColumn: 'Category'      // Colors points by category (cluster)
+                                }
+                            },
+                            {
+                                type: 'scatter',
+                                title: 'Price vs Profit (Dynamic 3-Cluster Groups)',
+                                data: {
+                                    xColumn: 'Price (USD)',
+                                    yColumn: 'Profit (USD)',
+                                    labelColumn: 'Product Name',
+                                    clusters: 3                   // Triggers dynamic K-Means clustering
                                 }
                             },
                             {
