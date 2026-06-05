@@ -22,10 +22,10 @@ function renderScatterChart(dt, config, chartDef) {
     // Get theme colors
     const themeColors = getThemeColors(currentTheme);
 
-    const xCol = chartDef.data.xColumn;
-    const yCol = chartDef.data.yColumn;
-    const labelCol = chartDef.data.labelColumn;
-    const clusterCol = chartDef.data.clusterColumn;
+    const xCol = resolveColumnIndex(dt, chartDef.data.xColumn);
+    const yCol = resolveColumnIndex(dt, chartDef.data.yColumn);
+    const labelCol = resolveColumnIndex(dt, chartDef.data.labelColumn);
+    const clusterCol = resolveColumnIndex(dt, chartDef.data.clusterColumn);
 
     // Get header names for X and Y axes
     let xHeader = 'X';

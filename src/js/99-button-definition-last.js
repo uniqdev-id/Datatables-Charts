@@ -70,6 +70,35 @@
                     console.log('⏭️ Chart is hidden or no chart displayed, skipping refresh');
                 }
             });
+
+            // --- AUTO-RENDER LOGIC ---
+            // Automatically render a chart marked with autoRender: true once data is loaded
+            let autoRenderTriggered = false;
+            dt.on('draw.dt.autorender', function () {
+                if (autoRenderTriggered) {
+                    return;
+                }
+
+                // Check if the table has loaded data
+                const hasData = dt.rows().count() > 0;
+                if (!hasData) {
+                    console.log('⏭️ Table has no rows, skipping auto-render');
+                    return;
+                }
+
+                // Find if any chart has autoRender: true
+                const charts = config.charts || [];
+                const autoChart = charts.find(c => c.autoRender === true);
+
+                if (autoChart) {
+                    autoRenderTriggered = true;
+                    // Unbind listener immediately so it doesn't fire again
+                    dt.off('draw.dt.autorender');
+
+                    console.log('🚀 Auto-rendering default chart:', autoChart.title);
+                    showAndRenderChart(dt, config, autoChart);
+                }
+            });
         },
 
         action: function (e, dt, node, config) {
@@ -197,162 +226,7 @@
                                 config._chartContainer.height(),
                         );
 
-                        // Add loading state
-                        config._chartContainer.addClass('loading');
-
-                        // Create the chart container with controls and footer
-                        const chartHtml = `
-                            <div class="dt-chart-controls">
-                                <button class="dt-chart-btn close-btn" title="Close Chart" data-action="close">✕</button>
-                                <button class="dt-chart-btn download-btn" title="Download Chart" data-action="download">⬇</button>
-                            </div>
-                            <canvas id="dt-chart-canvas" width="800" height="350" style="width: 100%; height: 350px;"></canvas>
-                            <div class="dt-chart-footer">
-                                <div class="dt-chart-title">${chartDef.title}</div>
-                                <div class="dt-chart-actions">
-                                    <button class="dt-chart-action-btn download" data-action="download">📥 Download</button>
-                                    <button class="dt-chart-action-btn close" data-action="close">✕ Close</button>
-                                </div>
-                            </div>
-                        `;
-
-                        config._chartContainer.html(chartHtml);
-
-                        // Add event listeners for control buttons
-                        config._chartContainer
-                            .find('[data-action="close"]')
-                            .on('click', function () {
-                                closeChart(config);
-                            });
-
-                        config._chartContainer
-                            .find('[data-action="download"]')
-                            .on('click', function () {
-                                downloadChart(
-                                    config._chartInstance,
-                                    chartDef.title,
-                                );
-                            });
-
-                        console.log('🎯 Calling renderChart...');
-
-                        // Wait for DOM to update and canvas to be ready
-                        setTimeout(() => {
-                            // Force a reflow to ensure canvas is properly sized
-                            config._chartContainer[0].offsetHeight;
-
-                            // Double-check canvas exists and has dimensions
-                            const canvas =
-                                config._chartContainer.find('canvas')[0];
-                            if (canvas) {
-                                console.log(
-                                    '📐 Pre-render canvas check:',
-                                    canvas.width + 'x' + canvas.height,
-                                );
-
-                                // Ensure canvas is visible and has proper parent
-                                const canvasRect =
-                                    canvas.getBoundingClientRect();
-                                console.log(
-                                    '📐 Canvas bounding rect:',
-                                    canvasRect,
-                                );
-
-                                if (
-                                    canvasRect.width === 0 ||
-                                    canvasRect.height === 0
-                                ) {
-                                    console.log(
-                                        '⚠️ Canvas has zero bounding rect, forcing layout...',
-                                    );
-                                    canvas.style.display = 'block';
-                                    canvas.style.width = '100%';
-                                    canvas.style.height = '350px';
-                                    canvas.width = 800;
-                                    canvas.height = 350;
-                                }
-                            }
-
-                            const columnMap = {};
-                            dt.columns().every(function () {
-                                var idx = this.index();
-                                var colName = this.column(idx).header();
-                                console.log('datatable header: ', idx, $(colName).html());
-                                columnMap[$(colName).html()] = idx;
-                            });
-
-                            //if labelColumn use string (labelColumn), lookup from columnMap
-                            //if labelColumn use string (labelColumn), lookup from columnMap
-                            if (
-                                chartDef.data.labelColumn !== undefined &&
-                                (typeof chartDef.data.labelColumn === 'string' ||
-                                isNaN(chartDef.data.labelColumn))
-                            ) {
-                                chartDef.data.labelColumn = columnMap[chartDef.data.labelColumn];
-                            }
-
-                            //if valueColumn use string (valueColumn), lookup from columnMap
-                            if (
-                                chartDef.data.valueColumn !== undefined &&
-                                (typeof chartDef.data.valueColumn === 'string' ||
-                                isNaN(chartDef.data.valueColumn))
-                            ) {
-                                chartDef.data.valueColumn = columnMap[chartDef.data.valueColumn];
-                            }
-
-                            //if xColumn use string (xColumn), lookup from columnMap
-                            if (
-                                chartDef.data.xColumn !== undefined &&
-                                (typeof chartDef.data.xColumn === 'string' ||
-                                isNaN(chartDef.data.xColumn))
-                            ) {
-                                chartDef.data.xColumn = columnMap[chartDef.data.xColumn];
-                            }
-
-                            //if yColumn use string (yColumn), lookup from columnMap
-                            if (
-                                chartDef.data.yColumn !== undefined &&
-                                (typeof chartDef.data.yColumn === 'string' ||
-                                isNaN(chartDef.data.yColumn))
-                            ) {
-                                chartDef.data.yColumn = columnMap[chartDef.data.yColumn];
-                            }
-
-                            //if clusterColumn use string (clusterColumn), lookup from columnMap
-                            if (
-                                chartDef.data.clusterColumn !== undefined &&
-                                (typeof chartDef.data.clusterColumn === 'string' ||
-                                isNaN(chartDef.data.clusterColumn))
-                            ) {
-                                chartDef.data.clusterColumn = columnMap[chartDef.data.clusterColumn];
-                            }
-
-
-                            // Store the current chart definition for auto-refresh on table redraw
-                            config._currentChartDef = chartDef;
-                            console.log('💾 Stored current chart definition:', chartDef.title);
-
-                            // ROUTER LOGIC:
-                            // Check if the developer provided the 'valueColumns' array.
-                            // console.log('🔍 Checking for valueColumns...', chartDef.data.valueColumns);
-                            // console.log('🔍 Checking for valueColumns is array...', Array.isArray(chartDef.data.valueColumns));
-                            if (chartDef.type === 'scatter') {
-                                renderScatterChart(dt, config, chartDef);
-                            } else if (chartDef.data.valueColumns && Array.isArray(chartDef.data.valueColumns)) {
-                                // Check if columnTotals is enabled
-                                if (chartDef.data.columnTotals === true) {
-                                    // Use column totals logic (sum each column)
-                                    renderColumnTotalsChart(dt, config, chartDef);
-                                } else {
-                                    // Use the pivot transformation logic (products on X-axis, stores as segments)
-                                    renderPivotChart(dt, config, chartDef);
-                                }
-                            } else {
-                                // Otherwise, use the original aggregation logic.
-                                renderAggregateChart(dt, config, chartDef);
-                            }
-                            config._chartContainer.removeClass('loading');
-                        }, 300);
+                        showAndRenderChart(dt, config, chartDef);
                     });
                 $dropdown.append($item);
             });
@@ -404,6 +278,96 @@
             });
         },
     };
+
+    /**
+     * Common helper to display the chart container and render the specified chart.
+     * Used by both button click action and programmatic auto-render.
+     * @param {DataTable.Api} dt - The DataTables API instance
+     * @param {object} config - The button configuration
+     * @param {object} chartDef - The chart definition to render
+     */
+    function showAndRenderChart(dt, config, chartDef) {
+        console.log('📈 showAndRenderChart triggered for:', chartDef.title);
+
+        config._chartContainer.show();
+        config._chartContainer.css('display', 'block');
+        config._chartContainer.addClass('loading');
+
+        // Create the chart container with controls and footer
+        const chartHtml = `
+            <div class="dt-chart-controls">
+                <button class="dt-chart-btn close-btn" title="Close Chart" data-action="close">✕</button>
+                <button class="dt-chart-btn download-btn" title="Download Chart" data-action="download">⬇</button>
+            </div>
+            <canvas id="dt-chart-canvas" width="800" height="350" style="width: 100%; height: 350px;"></canvas>
+            <div class="dt-chart-footer">
+                <div class="dt-chart-title">${chartDef.title}</div>
+                <div class="dt-chart-actions">
+                    <button class="dt-chart-action-btn download" data-action="download">📥 Download</button>
+                    <button class="dt-chart-action-btn close" data-action="close">✕ Close</button>
+                </div>
+            </div>
+        `;
+
+        config._chartContainer.html(chartHtml);
+
+        // Add event listeners for control buttons
+        config._chartContainer
+            .find('[data-action="close"]')
+            .on('click', function () {
+                closeChart(config);
+            });
+
+        config._chartContainer
+            .find('[data-action="download"]')
+            .on('click', function () {
+                downloadChart(
+                    config._chartInstance,
+                    chartDef.title,
+                );
+            });
+
+        // Wait for DOM to update and canvas to be ready
+        setTimeout(() => {
+            // Force a reflow to ensure canvas is properly sized
+            config._chartContainer[0].offsetHeight;
+
+            // Double-check canvas exists and has dimensions
+            const canvas = config._chartContainer.find('canvas')[0];
+            if (canvas) {
+                const canvasRect = canvas.getBoundingClientRect();
+                if (canvasRect.width === 0 || canvasRect.height === 0) {
+                    canvas.style.display = 'block';
+                    canvas.style.width = '100%';
+                    canvas.style.height = '350px';
+                    canvas.width = 800;
+                    canvas.height = 350;
+                }
+            }
+
+            // Store the current chart definition for auto-refresh on table redraw
+            config._currentChartDef = chartDef;
+            console.log('💾 Stored current chart definition:', chartDef.title);
+
+            // ROUTER LOGIC:
+            if (chartDef.type === 'scatter') {
+                renderScatterChart(dt, config, chartDef);
+            } else if (chartDef.data.valueColumns && Array.isArray(chartDef.data.valueColumns)) {
+                // Check if columnTotals is enabled
+                if (chartDef.data.columnTotals === true) {
+                    // Use column totals logic (sum each column)
+                    renderColumnTotalsChart(dt, config, chartDef);
+                } else {
+                    // Use the pivot transformation logic (products on X-axis, stores as segments)
+                    renderPivotChart(dt, config, chartDef);
+                }
+            } else {
+                // Otherwise, use the original aggregation logic.
+                renderAggregateChart(dt, config, chartDef);
+            }
+            config._chartContainer.removeClass('loading');
+        }, 300);
+    }
 
     // Close the IIFE wrapper
 }(window, document, jQuery, jQuery.fn.dataTable));

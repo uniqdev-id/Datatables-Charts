@@ -229,3 +229,33 @@
         return points;
     }
 
+    /**
+     * Resolves a column name or index to the current DataTable column index.
+     * @param {DataTable.Api} dt - The DataTables API instance.
+     * @param {string|number} colIdentifier - Column header text or index.
+     * @returns {number} The resolved column index, or undefined if not found.
+     */
+    function resolveColumnIndex(dt, colIdentifier) {
+        if (colIdentifier === undefined || colIdentifier === null || colIdentifier === '') {
+            return undefined;
+        }
+        if (typeof colIdentifier === 'number' || !isNaN(colIdentifier)) {
+            return parseInt(colIdentifier, 10);
+        }
+
+        const cleanedIdentifier = cleanHtmlFromText(colIdentifier).trim().toLowerCase();
+        let resolvedIndex = undefined;
+
+        dt.columns().every(function () {
+            const idx = this.index();
+            const headerHtml = $(this.header()).html();
+            const cleanHeader = cleanHtmlFromText(headerHtml).trim().toLowerCase();
+            if (cleanHeader === cleanedIdentifier) {
+                resolvedIndex = idx;
+            }
+        });
+
+        return resolvedIndex;
+    }
+
+

@@ -16,8 +16,8 @@ function aggregateDataByGroup(dt, chartDef) {
         testHtmlCleaning();
     }
 
-    const labelColumnIndex = chartDef.data.labelColumn;
-    const valueColumnIndex = chartDef.data.valueColumn;
+    const labelColumnIndex = resolveColumnIndex(dt, chartDef.data.labelColumn);
+    const valueColumnIndex = resolveColumnIndex(dt, chartDef.data.valueColumn);
     const aggregateType = chartDef.data.aggregate;
 
     console.log('🏷️ labelColumnIndex:', labelColumnIndex);
