@@ -147,7 +147,7 @@ function renderAggregateChart(dt, config, chartDef) {
                             font-weight: 500;
                         ">${chartDef.title}</h3>
                         <div class="dt-charts-controls">
-                            <button class="dt-chart-download" title="Download Chart" style="
+                            <button class="dt-chart-download" title="Download Chart as PNG" style="
                                 background: none;
                                 border: 1px solid ${themeColors.borderColor};
                                 color: ${themeColors.textColor};
@@ -156,7 +156,17 @@ function renderAggregateChart(dt, config, chartDef) {
                                 border-radius: 3px;
                                 cursor: pointer;
                                 font-size: 12px;
-                            ">📥 Download</button>
+                            ">📥 PNG</button>
+                            <button class="dt-chart-download-data" title="Download Data as CSV" style="
+                                background: none;
+                                border: 1px solid ${themeColors.borderColor};
+                                color: ${themeColors.textColor};
+                                padding: 5px 10px;
+                                margin-right: 5px;
+                                border-radius: 3px;
+                                cursor: pointer;
+                                font-size: 12px;
+                            ">📊 CSV</button>
                             <button class="dt-chart-close" title="Close Chart" style="
                                 background: none;
                                 border: 1px solid ${themeColors.borderColor};
@@ -199,8 +209,12 @@ function renderAggregateChart(dt, config, chartDef) {
             downloadChart(config._chartInstance, chartDef.title);
         });
 
+        chartContainer.find('.dt-chart-download-data').on('click', function () {
+            downloadDataAsCsv(dt, chartDef.title);
+        });
+
         // Add hover effects to buttons
-        chartContainer.find('.dt-chart-close, .dt-chart-download').hover(
+        chartContainer.find('.dt-chart-close, .dt-chart-download, .dt-chart-download-data').hover(
             function () {
                 $(this).css('background-color', themeColors.gridColor);
             },
@@ -318,6 +332,72 @@ function closeChart(config) {
     // Clear the current chart definition so auto-refresh won't trigger
     config._currentChartDef = null;
     console.log('💾 Cleared current chart definition');
+}
+
+/**
+ * Downloads the chart data as a CSV file
+ * @param {DataTable.Api} dt - The DataTables API instance
+ * @param {string} title - The chart title for filename
+ */
+function downloadDataAsCsv(dt, title) {
+    console.log('📊 Downloading chart data as CSV:', title);
+
+    try {
+        const columnCount = dt.columns().count();
+
+        const headers = [];
+        for (let colIdx = 0; colIdx < columnCount; colIdx++) {
+            headers.push($(dt.column(colIdx).header()).text().trim());
+        }
+
+        const rows = [];
+        dt.rows({ search: 'applied' }).every(function (rowIdx) {
+            const row = [];
+            for (let colIdx = 0; colIdx < columnCount; colIdx++) {
+                const cellValue = dt.cell(rowIdx, colIdx).render('display');
+                row.push(cleanHtmlFromText(cellValue));
+            }
+            rows.push(row);
+        });
+
+        const csvContent = [
+            headers.join(','),
+            ...rows.map(function (row) {
+                return row
+                    .map(function (cell) {
+                        var str = String(cell);
+                        if (
+                            str.indexOf(',') !== -1 ||
+                            str.indexOf('"') !== -1 ||
+                            str.indexOf('\n') !== -1
+                        ) {
+                            return '"' + str.replace(/"/g, '""') + '"';
+                        }
+                        return str;
+                    })
+                    .join(',');
+            }),
+        ].join('\n');
+
+        var bom = '\uFEFF';
+        var blob = new Blob([bom + csvContent], {
+            type: 'text/csv;charset=utf-8;',
+        });
+        var url = URL.createObjectURL(blob);
+        var link = document.createElement('a');
+        link.download = title
+            .replace(/[^a-z0-9]/gi, '_')
+            .toLowerCase() + '_data.csv';
+        link.href = url;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        console.log('✅ Chart data downloaded successfully as CSV');
+    } catch (error) {
+        console.error('❌ Error downloading chart data:', error);
+    }
 }
 
 /**

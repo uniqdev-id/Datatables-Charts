@@ -297,13 +297,15 @@
         const chartHtml = `
             <div class="dt-chart-controls">
                 <button class="dt-chart-btn close-btn" title="Close Chart" data-action="close">✕</button>
-                <button class="dt-chart-btn download-btn" title="Download Chart" data-action="download">⬇</button>
+                <button class="dt-chart-btn download-btn" title="Download Chart as PNG" data-action="download">⬇</button>
+                <button class="dt-chart-btn download-data-btn" title="Download Data as CSV" data-action="download-data">📊</button>
             </div>
             <canvas id="dt-chart-canvas" width="800" height="350" style="width: 100%; height: 350px;"></canvas>
             <div class="dt-chart-footer">
                 <div class="dt-chart-title">${chartDef.title}</div>
                 <div class="dt-chart-actions">
-                    <button class="dt-chart-action-btn download" data-action="download">📥 Download</button>
+                    <button class="dt-chart-action-btn download" data-action="download">📥 PNG</button>
+                    <button class="dt-chart-action-btn download-data" data-action="download-data">📊 CSV</button>
                     <button class="dt-chart-action-btn close" data-action="close">✕ Close</button>
                 </div>
             </div>
@@ -325,6 +327,12 @@
                     config._chartInstance,
                     chartDef.title,
                 );
+            });
+
+        config._chartContainer
+            .find('[data-action="download-data"]')
+            .on('click', function () {
+                downloadDataAsCsv(dt, chartDef.title);
             });
 
         // Wait for DOM to update and canvas to be ready
