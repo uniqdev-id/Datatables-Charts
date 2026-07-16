@@ -332,7 +332,7 @@
         config._chartContainer
             .find('[data-action="download-data"]')
             .on('click', function () {
-                downloadDataAsCsv(dt, chartDef.title);
+                downloadDataAsCsv(dt, chartDef.title, config._chartInstance);
             });
 
         // Wait for DOM to update and canvas to be ready

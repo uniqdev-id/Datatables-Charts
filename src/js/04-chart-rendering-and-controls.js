@@ -210,7 +210,7 @@ function renderAggregateChart(dt, config, chartDef) {
         });
 
         chartContainer.find('.dt-chart-download-data').on('click', function () {
-            downloadDataAsCsv(dt, chartDef.title);
+            downloadDataAsCsv(dt, chartDef.title, config._chartInstance);
         });
 
         // Add hover effects to buttons
@@ -339,64 +339,177 @@ function closeChart(config) {
  * @param {DataTable.Api} dt - The DataTables API instance
  * @param {string} title - The chart title for filename
  */
-function downloadDataAsCsv(dt, title) {
+/**
+ * Shows a brief toast notification
+ * @param {string} message - The message to display
+ * @param {string} type - 'info' or 'warning'
+ */
+function showToast(message, type) {
+    var toast = document.createElement('div');
+    toast.textContent = message;
+    toast.style.cssText =
+        'position:fixed;bottom:20px;right:20px;padding:12px 20px;border-radius:6px;' +
+        'z-index:99999;font-size:14px;font-family:sans-serif;transition:opacity .3s;' +
+        (type === 'warning'
+            ? 'background:#fff3cd;color:#856404;border:1px solid #ffeeba;'
+            : 'background:#d1ecf1;color:#0c5460;border:1px solid #bee5eb;');
+    document.body.appendChild(toast);
+    setTimeout(function () {
+        toast.style.opacity = '0';
+        setTimeout(function () { toast.remove(); }, 300);
+    }, 3000);
+}
+
+/**
+ * Escapes a cell value for CSV (quote if contains comma, quote, or newline)
+ * @param {*} value
+ * @returns {string}
+ */
+function csvEscape(value) {
+    var str = String(value);
+    if (
+        str.indexOf(',') !== -1 ||
+        str.indexOf('"') !== -1 ||
+        str.indexOf('\n') !== -1
+    ) {
+        return '"' + str.replace(/"/g, '""') + '"';
+    }
+    return str;
+}
+
+/**
+ * Triggers a browser download of a CSV Blob
+ * @param {string} csvContent
+ * @param {string} filename
+ */
+function downloadCsvBlob(csvContent, filename) {
+    var bom = '\uFEFF';
+    var blob = new Blob([bom + csvContent], {
+        type: 'text/csv;charset=utf-8;',
+    });
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement('a');
+    link.download = filename;
+    link.href = url;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+}
+
+/**
+ * Downloads the chart data as a CSV file.
+ * First attempts to export the actual chart data from the Chart.js instance.
+ * Falls back to raw DataTable rows if chart data is unavailable.
+ * @param {DataTable.Api} dt - The DataTables API instance
+ * @param {string} title - The chart title for filename
+ * @param {Chart|null} chartInstance - The Chart.js instance to extract data from
+ */
+function downloadDataAsCsv(dt, title, chartInstance) {
     console.log('📊 Downloading chart data as CSV:', title);
 
-    try {
-        const columnCount = dt.columns().count();
+    // Attempt 1: export chart data from Chart.js instance
+    if (chartInstance && chartInstance.data) {
+        try {
+            var chartData = chartInstance.data;
+            var csvRows = [];
+            var isScatter =
+                chartData.datasets &&
+                chartData.datasets[0] &&
+                chartData.datasets[0].data &&
+                typeof chartData.datasets[0].data[0] === 'object' &&
+                chartData.datasets[0].data[0] !== null &&
+                'x' in chartData.datasets[0].data[0];
 
-        const headers = [];
-        for (let colIdx = 0; colIdx < columnCount; colIdx++) {
-            headers.push($(dt.column(colIdx).header()).text().trim());
-        }
+            if (isScatter) {
+                // Build columns: label (from dataset), x, y
+                var scatterHeaders = ['Dataset', 'X', 'Y'];
+                csvRows.push(scatterHeaders.join(','));
+                chartData.datasets.forEach(function (ds) {
+                    ds.data.forEach(function (pt) {
+                        csvRows.push(
+                            csvEscape(ds.label || '') +
+                                ',' +
+                                csvEscape(pt.x) +
+                                ',' +
+                                csvEscape(pt.y),
+                        );
+                    });
+                });
+            } else {
+                // Standard chart: one column for labels, one per dataset
+                var headers = ['Label'];
+                chartData.datasets.forEach(function (ds) {
+                    headers.push(ds.label || 'Series ' + headers.length);
+                });
+                csvRows.push(headers.join(','));
 
-        const rows = [];
-        dt.rows({ search: 'applied' }).every(function (rowIdx) {
-            const row = [];
-            for (let colIdx = 0; colIdx < columnCount; colIdx++) {
-                const cellValue = dt.cell(rowIdx, colIdx).render('display');
-                row.push(cleanHtmlFromText(cellValue));
+                (chartData.labels || []).forEach(function (label, i) {
+                    var row = [csvEscape(label)];
+                    chartData.datasets.forEach(function (ds) {
+                        row.push(
+                            csvEscape(
+                                ds.data[i] !== undefined ? ds.data[i] : '',
+                            ),
+                        );
+                    });
+                    csvRows.push(row.join(','));
+                });
             }
-            rows.push(row);
+
+            if (csvRows.length > 1) {
+                downloadCsvBlob(
+                    csvRows.join('\n'),
+                    title.replace(/[^a-z0-9]/gi, '_').toLowerCase() +
+                        '_chart.csv',
+                );
+                console.log('✅ Chart data downloaded as chart-structured CSV');
+                return;
+            }
+        } catch (chartError) {
+            console.warn(
+                '⚠️ Chart data export failed, falling back to raw data:',
+                chartError,
+            );
+        }
+    }
+
+    // Fallback: export raw DataTable rows
+    try {
+        console.log('📋 Falling back to raw DataTable export');
+        showToast(
+            'Could not extract chart data, downloading table data instead',
+            'warning',
+        );
+
+        var columnCount = dt.columns().count();
+        var fbHeaders = [];
+        for (var ci = 0; ci < columnCount; ci++) {
+            fbHeaders.push($(dt.column(ci).header()).text().trim());
+        }
+        var fbRows = [];
+        dt.rows({ search: 'applied' }).every(function (rowIdx) {
+            var row = [];
+            for (var cj = 0; cj < columnCount; cj++) {
+                row.push(
+                    csvEscape(
+                        cleanHtmlFromText(
+                            dt.cell(rowIdx, cj).render('display'),
+                        ),
+                    ),
+                );
+            }
+            fbRows.push(row.join(','));
         });
 
-        const csvContent = [
-            headers.join(','),
-            ...rows.map(function (row) {
-                return row
-                    .map(function (cell) {
-                        var str = String(cell);
-                        if (
-                            str.indexOf(',') !== -1 ||
-                            str.indexOf('"') !== -1 ||
-                            str.indexOf('\n') !== -1
-                        ) {
-                            return '"' + str.replace(/"/g, '""') + '"';
-                        }
-                        return str;
-                    })
-                    .join(',');
-            }),
-        ].join('\n');
-
-        var bom = '\uFEFF';
-        var blob = new Blob([bom + csvContent], {
-            type: 'text/csv;charset=utf-8;',
-        });
-        var url = URL.createObjectURL(blob);
-        var link = document.createElement('a');
-        link.download = title
-            .replace(/[^a-z0-9]/gi, '_')
-            .toLowerCase() + '_data.csv';
-        link.href = url;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
-        console.log('✅ Chart data downloaded successfully as CSV');
+        downloadCsvBlob(
+            [fbHeaders.join(','), fbRows.join('\n')].join('\n'),
+            title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '_data.csv',
+        );
+        console.log('✅ Raw DataTable data downloaded as CSV');
     } catch (error) {
-        console.error('❌ Error downloading chart data:', error);
+        console.error('❌ Error downloading data:', error);
+        showToast('Failed to download data. Check console for details.', 'warning');
     }
 }
 
